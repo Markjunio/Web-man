@@ -88,8 +88,8 @@ const App: React.FC = () => {
     <div className="min-h-screen relative overflow-x-hidden selection:bg-[#0aff0a] selection:text-black">
       <MatrixBackground />
       
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass-panel border-b border-[#0aff0a]/20 px-6 py-4 flex justify-between items-center">
+      {/* Header - Fixed Banner */}
+      <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-[#0aff0a]/20 px-6 py-4 flex justify-between items-center shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-4">
           <div className="bg-[#0aff0a] p-2 rounded-lg shadow-[0_0_15px_rgba(10,255,10,0.5)] animate-pulse">
             <i className="fas fa-bolt text-black text-xl"></i>
@@ -128,118 +128,121 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="px-6 pt-24 pb-16 text-center relative max-w-6xl mx-auto">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0aff0a]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
-        
-        <div className="space-y-8">
-          <div className="inline-block px-4 py-1 rounded-full border border-[#0aff0a]/30 bg-[#0aff0a]/5 text-[#0aff0a] text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-            Next-Gen USDT Bridging is Here
-          </div>
-          <h2 className="font-orbitron text-5xl md:text-8xl font-black leading-none tracking-tighter">
-            THE DIGITAL <span className="text-[#0aff0a] glow-text">FOREST</span>
-          </h2>
-          <p className="text-lg md:text-2xl text-[#b0ffb0] max-w-3xl mx-auto leading-relaxed opacity-90 font-light">
-            Transcend legacy blockchains with high-frequency quantum tunneling. Deploy instantaneous liquidity flashes with zero detection latency.
-          </p>
+      {/* Main Content Container with Top Padding for Fixed Header */}
+      <main className="pt-24">
+        {/* Hero Section */}
+        <section className="px-6 pb-16 text-center relative max-w-6xl mx-auto">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0aff0a]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
           
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-12">
-            <a href="#products" className="px-10 py-5 bg-[#0aff0a] text-black font-black uppercase text-sm tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(10,255,10,0.4)]">
-              Access Core Suite
-            </a>
-            <button onClick={() => setIsVaultOpen(true)} className="px-10 py-5 border border-[#0aff0a]/40 text-[#0aff0a] font-black uppercase text-sm tracking-widest rounded-xl hover:bg-[#0aff0a]/10 transition-all">
-              Manage Licenses
-            </button>
+          <div className="space-y-8">
+            <div className="inline-block px-4 py-1 rounded-full border border-[#0aff0a]/30 bg-[#0aff0a]/5 text-[#0aff0a] text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+              Next-Gen USDT Bridging is Here
+            </div>
+            <h2 className="font-orbitron text-5xl md:text-8xl font-black leading-none tracking-tighter">
+              THE DIGITAL <span className="text-[#0aff0a] glow-text">FOREST</span>
+            </h2>
+            <p className="text-lg md:text-2xl text-[#b0ffb0] max-w-3xl mx-auto leading-relaxed opacity-90 font-light">
+              Transcend legacy blockchains with high-frequency quantum tunneling. Deploy instantaneous liquidity flashes with zero detection latency.
+            </p>
+            
+            <div className="flex flex-col md:flex-row justify-center items-center gap-6 mt-12">
+              <a href="#products" className="px-10 py-5 bg-[#0aff0a] text-black font-black uppercase text-sm tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(10,255,10,0.4)]">
+                Access Core Suite
+              </a>
+              <button onClick={() => setIsVaultOpen(true)} className="px-10 py-5 border border-[#0aff0a]/40 text-[#0aff0a] font-black uppercase text-sm tracking-widest rounded-xl hover:bg-[#0aff0a]/10 transition-all">
+                Manage Licenses
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Stats Terminal */}
-      <section className="px-6 py-12 max-w-7xl mx-auto">
-        <div className="glass-panel rounded-2xl p-6 border-[#0aff0a]/30 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {[
-            { label: 'Network Load', val: '4.12 TB/s', status: 'Optimal' },
-            { label: 'Active Tunnels', val: '1,092', status: 'Stable' },
-            { label: 'Average Latency', val: '0.003ms', status: 'Minimal' },
-            { label: 'Encrypted Volume', val: '$8.2B+', status: 'Growing' }
-          ].map((stat, i) => (
-            <div key={i} className="space-y-1 border-l-2 border-[#0aff0a]/20 pl-4">
-              <p className="text-[10px] text-[#80a080] uppercase tracking-widest">{stat.label}</p>
-              <h5 className="font-orbitron font-black text-xl">{stat.val}</h5>
-              <p className="text-[9px] text-[#0aff0a] font-bold">{stat.status}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Products Grid */}
-      <section id="products" className="px-6 py-24 max-w-7xl mx-auto">
-        <div className="mb-16">
-          <h3 className="font-orbitron text-3xl font-black text-[#0aff0a] text-center tracking-tighter">OPERATIONAL SOFTWARE</h3>
-          <p className="text-center text-[#80a080] text-sm mt-2 font-mono uppercase">Select your encryption tier for immediate deployment</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {PRODUCTS.map(product => (
-            <div key={product.id} className="group glass-panel rounded-3xl overflow-hidden hover:border-[#0aff0a] transition-all duration-700 relative flex flex-col border-[#0aff0a]/10">
-              {product.badge && (
-                <div className="absolute top-6 right-6 z-10 bg-[#0aff0a] text-black text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-[0_0_20px_rgba(10,255,10,0.5)]">
-                  {product.badge}
-                </div>
-              )}
-              
-              <div className="h-56 bg-black/40 flex items-center justify-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                <div className="w-24 h-24 rounded-full bg-[#0aff0a]/5 flex items-center justify-center border border-[#0aff0a]/10 group-hover:scale-110 transition-transform duration-700">
-                  <i className={`fas fa-${product.icon} text-5xl text-[#0aff0a] glow-text`}></i>
-                </div>
+        {/* Stats Terminal */}
+        <section className="px-6 py-12 max-w-7xl mx-auto">
+          <div className="glass-panel rounded-2xl p-6 border-[#0aff0a]/30 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { label: 'Network Load', val: '4.12 TB/s', status: 'Optimal' },
+              { label: 'Active Tunnels', val: '1,092', status: 'Stable' },
+              { label: 'Average Latency', val: '0.003ms', status: 'Minimal' },
+              { label: 'Encrypted Volume', val: '$8.2B+', status: 'Growing' }
+            ].map((stat, i) => (
+              <div key={i} className="space-y-1 border-l-2 border-[#0aff0a]/20 pl-4">
+                <p className="text-[10px] text-[#80a080] uppercase tracking-widest">{stat.label}</p>
+                <h5 className="font-orbitron font-black text-xl">{stat.val}</h5>
+                <p className="text-[9px] text-[#0aff0a] font-bold">{stat.status}</p>
               </div>
+            ))}
+          </div>
+        </section>
 
-              <div className="p-8 flex-1 flex flex-col space-y-6">
-                <div>
-                  <h4 className="font-orbitron font-black text-2xl mb-2 group-hover:text-[#0aff0a] transition-colors">{product.name}</h4>
-                  <div className="flex gap-2">
-                    <span className="text-[9px] bg-[#0aff0a]/10 text-[#0aff0a] px-2 py-1 rounded-md font-black tracking-widest uppercase">Verified Tier {product.id}</span>
-                    <span className="text-[9px] bg-white/5 text-white/40 px-2 py-1 rounded-md font-black tracking-widest uppercase">Build 0x{Math.random().toString(16).slice(2, 6)}</span>
+        {/* Products Grid */}
+        <section id="products" className="px-6 py-24 max-w-7xl mx-auto">
+          <div className="mb-16">
+            <h3 className="font-orbitron text-3xl font-black text-[#0aff0a] text-center tracking-tighter">OPERATIONAL SOFTWARE</h3>
+            <p className="text-center text-[#80a080] text-sm mt-2 font-mono uppercase">Select your encryption tier for immediate deployment</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {PRODUCTS.map(product => (
+              <div key={product.id} className="group glass-panel rounded-3xl overflow-hidden hover:border-[#0aff0a] transition-all duration-700 relative flex flex-col border-[#0aff0a]/10">
+                {product.badge && (
+                  <div className="absolute top-6 right-6 z-10 bg-[#0aff0a] text-black text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-[0_0_20px_rgba(10,255,10,0.5)]">
+                    {product.badge}
                   </div>
-                </div>
+                )}
                 
-                <p className="text-sm text-[#b0ffb0]/70 leading-relaxed min-h-[60px]">
-                  {product.description}
-                </p>
-
-                <div className="space-y-3">
-                  {product.features.map((f, i) => (
-                    <div key={i} className="flex items-start gap-3 text-[11px] text-[#b0ffb0]">
-                      <i className="fas fa-microchip text-[#0aff0a] mt-1"></i>
-                      <span className="opacity-80 font-medium">{f}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="bg-black p-4 rounded-xl font-mono text-[10px] text-[#00ffaa]/50 border border-[#0aff0a]/10 group-hover:border-[#0aff0a]/40 transition-colors">
-                   <span className="text-white/20 mr-2">$</span> {product.command}
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-[#0aff0a]/10 mt-auto">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-[#0aff0a] tracking-tighter">${product.price}</span>
-                    {product.oldPrice && (
-                      <span className="text-xs text-red-500/50 line-through font-bold">${product.oldPrice}</span>
-                    )}
+                <div className="h-56 bg-black/40 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                  <div className="w-24 h-24 rounded-full bg-[#0aff0a]/5 flex items-center justify-center border border-[#0aff0a]/10 group-hover:scale-110 transition-transform duration-700">
+                    <i className={`fas fa-${product.icon} text-5xl text-[#0aff0a] glow-text`}></i>
                   </div>
-                  <button 
-                    onClick={() => addToCart(product)}
-                    className="bg-[#0aff0a] text-black w-14 h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-[#00ffaa] hover:rotate-6 active:scale-90 transition-all shadow-[0_5px_15px_rgba(10,255,10,0.3)] flex items-center justify-center"
-                  >
-                    <i className="fas fa-plus text-xl"></i>
-                  </button>
+                </div>
+
+                <div className="p-8 flex-1 flex flex-col space-y-6">
+                  <div>
+                    <h4 className="font-orbitron font-black text-2xl mb-2 group-hover:text-[#0aff0a] transition-colors">{product.name}</h4>
+                    <div className="flex gap-2">
+                      <span className="text-[9px] bg-[#0aff0a]/10 text-[#0aff0a] px-2 py-1 rounded-md font-black tracking-widest uppercase">Verified Tier {product.id}</span>
+                      <span className="text-[9px] bg-white/5 text-white/40 px-2 py-1 rounded-md font-black tracking-widest uppercase">Build 0x{Math.random().toString(16).slice(2, 6)}</span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-sm text-[#b0ffb0]/70 leading-relaxed min-h-[60px]">
+                    {product.description}
+                  </p>
+
+                  <div className="space-y-3">
+                    {product.features.map((f, i) => (
+                      <div key={i} className="flex items-start gap-3 text-[11px] text-[#b0ffb0]">
+                        <i className="fas fa-microchip text-[#0aff0a] mt-1"></i>
+                        <span className="opacity-80 font-medium">{f}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-black p-4 rounded-xl font-mono text-[10px] text-[#00ffaa]/50 border border-[#0aff0a]/10 group-hover:border-[#0aff0a]/40 transition-colors">
+                     <span className="text-white/20 mr-2">$</span> {product.command}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-[#0aff0a]/10 mt-auto">
+                    <div className="flex flex-col">
+                      <span className="text-3xl font-black text-[#0aff0a] tracking-tighter">${product.price}</span>
+                      {product.oldPrice && (
+                        <span className="text-xs text-red-500/50 line-through font-bold">${product.oldPrice}</span>
+                      )}
+                    </div>
+                    <button 
+                      onClick={() => addToCart(product)}
+                      className="bg-[#0aff0a] text-black w-14 h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-[#00ffaa] hover:rotate-6 active:scale-90 transition-all shadow-[0_5px_15px_rgba(10,255,10,0.3)] flex items-center justify-center"
+                    >
+                      <i className="fas fa-plus text-xl"></i>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </main>
 
       {/* Cart Drawer */}
       {isCartOpen && (
@@ -493,6 +496,24 @@ const App: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* Features Section */}
+      <section id="features" className="px-6 py-24 bg-[#0a1a0a]/30">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+          {[
+            { icon: 'shield-halved', title: 'Forest Security', desc: 'Military-grade quantum tunneling.' },
+            { icon: 'bolt', title: 'Instant Flashing', desc: 'Latency optimized transaction nodes.' },
+            { icon: 'globe', title: 'Global Access', desc: 'Connect from any dimensional plane.' },
+            { icon: 'headset', title: '24/7 Support', desc: 'Quantum AI assistance around the clock.' }
+          ].map((f, i) => (
+            <div key={i} className="p-8 glass-panel rounded-2xl border-none space-y-4">
+              <i className={`fas fa-${f.icon} text-4xl text-[#0aff0a]`}></i>
+              <h5 className="font-orbitron font-bold text-[#0aff0a]">{f.title}</h5>
+              <p className="text-xs text-[#b0ffb0]/60 leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="p-16 border-t border-[#0aff0a]/20 glass-panel mt-32 bg-black/60 relative">

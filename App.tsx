@@ -4,7 +4,9 @@ import { Product, CartItem, PaymentMethod, TransactionResult } from './types.ts'
 import { PRODUCTS } from './constants.tsx';
 import MatrixBackground from './components/MatrixBackground.tsx';
 import SupportChat from './components/SupportChat.tsx';
+import SoftwarePortal from './components/SoftwarePortal.tsx';
 import { generateQuantumKey } from './services/geminiService.ts';
+import { getMasterKeys } from './services/licenseService.ts';
 
 const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -25,6 +27,9 @@ const App: React.FC = () => {
   const [result, setResult] = useState<TransactionResult | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.USDT);
   const [notification, setNotification] = useState<string | null>(null);
+  
+  // Software Execution State
+  const [runningSoftware, setRunningSoftware] = useState<Product | null>(null);
 
   useEffect(() => {
     localStorage.setItem('elon_cart', JSON.stringify(cart));
@@ -84,9 +89,37 @@ const App: React.FC = () => {
     }
   };
 
+  const exportKeysAsPDF = () => {
+    const keys = getMasterKeys();
+    // @ts-ignore
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(22);
+    doc.text("ELON FLASHER MASTER KEY MANIFEST", 20, 20);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toISOString()}`, 20, 30);
+    doc.text(`Total Keys: ${keys.length}`, 20, 35);
+    
+    let y = 45;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    keys.forEach((key, index) => {
+      if (y > pageHeight - 10) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(`${index + 1}. ${key}`, 20, y);
+      y += 6;
+    });
+
+    doc.save(`ElonFlasher_MasterKeys_${Date.now()}.pdf`);
+    showNotification("PDF Manifest Exported.");
+  };
+
   return (
     <div className="min-h-screen relative overflow-x-hidden selection:bg-[#0aff0a] selection:text-black">
-      <MatrixBackground isProcessing={isProcessing} />
+      <MatrixBackground isProcessing={isProcessing || runningSoftware !== null} />
       
       {/* Header - Fixed Banner */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-[#0aff0a]/20 px-6 py-4 flex justify-between items-center shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
@@ -223,18 +256,27 @@ const App: React.FC = () => {
                      <span className="text-white/20 mr-2">$</span> {product.command}
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-[#0aff0a]/10 mt-auto">
-                    <div className="flex flex-col">
-                      <span className="text-3xl font-black text-[#0aff0a] tracking-tighter">${product.price}</span>
-                      {product.oldPrice && (
-                        <span className="text-xs text-red-500/50 line-through font-bold">${product.oldPrice}</span>
-                      )}
+                  <div className="flex flex-col gap-4 pt-4 border-t border-[#0aff0a]/10 mt-auto">
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <span className="text-3xl font-black text-[#0aff0a] tracking-tighter">${product.price}</span>
+                            {product.oldPrice && (
+                            <span className="text-xs text-red-500/50 line-through font-bold">${product.oldPrice}</span>
+                            )}
+                        </div>
+                        <button 
+                            onClick={() => addToCart(product)}
+                            className="bg-[#0aff0a] text-black w-14 h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-[#00ffaa] hover:rotate-6 active:scale-90 transition-all shadow-[0_5px_15px_rgba(10,255,10,0.3)] flex items-center justify-center"
+                        >
+                            <i className="fas fa-plus text-xl"></i>
+                        </button>
                     </div>
+                    
                     <button 
-                      onClick={() => addToCart(product)}
-                      className="bg-[#0aff0a] text-black w-14 h-14 rounded-2xl font-black uppercase tracking-widest hover:bg-[#00ffaa] hover:rotate-6 active:scale-90 transition-all shadow-[0_5px_15px_rgba(10,255,10,0.3)] flex items-center justify-center"
+                        onClick={() => setRunningSoftware(product)}
+                        className="w-full py-4 border border-[#0aff0a] text-[#0aff0a] rounded-xl font-black uppercase text-xs tracking-[0.2em] hover:bg-[#0aff0a] hover:text-black transition-all flex items-center justify-center gap-3 group"
                     >
-                      <i className="fas fa-plus text-xl"></i>
+                        <i className="fas fa-play-circle group-hover:animate-pulse"></i> Run Software
                     </button>
                   </div>
                 </div>
@@ -243,6 +285,19 @@ const App: React.FC = () => {
           </div>
         </section>
       </main>
+
+      {/* Software Portal Modal */}
+      {runningSoftware && (
+        <SoftwarePortal 
+          product={runningSoftware} 
+          onClose={() => setRunningSoftware(null)}
+          onPurchaseRequest={() => {
+            addToCart(runningSoftware);
+            setRunningSoftware(null);
+            setIsCartOpen(true);
+          }}
+        />
+      )}
 
       {/* Cart Drawer */}
       {isCartOpen && (
@@ -433,7 +488,7 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* License Vault (Backend Database Simulation) */}
+      {/* License Vault */}
       {isVaultOpen && (
         <>
           <div onClick={() => setIsVaultOpen(false)} className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[300]"></div>
@@ -448,9 +503,17 @@ const App: React.FC = () => {
                   <p className="text-[10px] text-[#80a080] font-black uppercase tracking-[0.4em] mt-1">Authorized Access Only</p>
                 </div>
               </div>
-              <button onClick={() => setIsVaultOpen(false)} className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-[#0aff0a] hover:text-[#0aff0a] transition-all">
-                <i className="fas fa-times text-xl"></i>
-              </button>
+              <div className="flex gap-4">
+                <button 
+                    onClick={exportKeysAsPDF}
+                    className="px-6 py-2 bg-[#0aff0a]/10 border border-[#0aff0a] text-[#0aff0a] font-black uppercase text-[10px] rounded-full hover:bg-[#0aff0a] hover:text-black transition-all"
+                >
+                    Download Master Keys (PDF)
+                </button>
+                <button onClick={() => setIsVaultOpen(false)} className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-white hover:border-[#0aff0a] hover:text-[#0aff0a] transition-all">
+                    <i className="fas fa-times text-xl"></i>
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-10 space-y-6">

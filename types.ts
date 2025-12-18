@@ -30,3 +30,5 @@ export enum PaymentMethod {
   ETH = 'ETH',
   QUANTUM = 'QUANTUM'
 }
+
+export type SoftwareStage = 'BOOT' | 'LICENSE' | 'CONFIG' | 'EXECUTING' | 'COMPLETE';

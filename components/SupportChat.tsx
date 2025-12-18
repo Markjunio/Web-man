@@ -28,7 +28,8 @@ const SupportChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const result = await chatSession.sendMessage({ message: userMsg });
+      const result: GenerateContentResponse = await chatSession.sendMessage({ message: userMsg });
+      // The GenerateContentResponse features a text property (not a method).
       const responseText = result.text || "Connection to core lost. Retry protocol.";
       setMessages(prev => [...prev, { role: 'ai', text: responseText }]);
     } catch (error) {

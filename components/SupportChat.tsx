@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { createQuantumChatSession } from '../services/geminiService';
+import { createQuantumChatSession } from '../services/geminiService.ts';
 import { GenerateContentResponse } from '@google/genai';
 
 const SupportChat: React.FC = () => {

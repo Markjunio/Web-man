@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, Chat } from "@google/genai";
-import { CartItem, TransactionResult } from "../types";
+import { CartItem, TransactionResult } from "../types.ts";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
 

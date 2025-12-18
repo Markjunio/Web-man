@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Product, CartItem, PaymentMethod, TransactionResult } from './types';
-import { PRODUCTS } from './constants';
-import MatrixBackground from './components/MatrixBackground';
-import SupportChat from './components/SupportChat';
-import { generateQuantumKey } from './services/geminiService';
+import { Product, CartItem, PaymentMethod, TransactionResult } from './types.ts';
+import { PRODUCTS } from './constants.tsx';
+import MatrixBackground from './components/MatrixBackground.tsx';
+import SupportChat from './components/SupportChat.tsx';
+import { generateQuantumKey } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -86,7 +86,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden selection:bg-[#0aff0a] selection:text-black">
-      <MatrixBackground />
+      <MatrixBackground isProcessing={isProcessing} />
       
       {/* Header - Fixed Banner */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-[#0aff0a]/20 px-6 py-4 flex justify-between items-center shadow-[0_4px_30px_rgba(0,0,0,0.5)]">

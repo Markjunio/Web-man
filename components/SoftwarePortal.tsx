@@ -73,13 +73,20 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
   }, [logs]);
 
   const handleLicenseSubmit = () => {
-    if (validateLicenseKey(license)) {
+    const cleanKey = license.trim().toUpperCase();
+    if (validateLicenseKey(cleanKey)) {
       setStage('CONFIG');
       setError('');
-      setLogs(prev => [...prev, `> LICENSE VALIDATED: [${license}]`]);
+      setLogs(prev => [...prev, `> LICENSE VALIDATED: [${cleanKey}]`, `> CORE ACCESS GRANTED.`]);
     } else {
-      setError('INVALID OR EXPIRED QUANTUM SIGNATURE');
-      setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${license}`]);
+      const usedKeys = JSON.parse(localStorage.getItem('used_elon_keys') || '[]');
+      if (usedKeys.includes(cleanKey)) {
+        setError('LICENSE ALREADY EXPENDED IN DIMENSIONAL RIFT');
+        setLogs(prev => [...prev, `> ERROR: SINGLE-USE KEY ${cleanKey} ALREADY EXHAUSTED.`]);
+      } else {
+        setError('INVALID OR UNRECOGNIZED QUANTUM SIGNATURE');
+        setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${cleanKey}`]);
+      }
     }
   };
 
@@ -139,7 +146,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
                   type="text"
                   placeholder="ENTER QUANTUM KEY"
                   value={license}
-                  onChange={(e) => setLicense(e.target.value.toUpperCase())}
+                  onChange={(e) => setLicense(e.target.value)}
                   className="flex-1 bg-black/60 border border-[#0aff0a]/30 rounded-xl px-5 py-4 text-center text-lg font-bold tracking-[0.2em] text-[#0aff0a] outline-none focus:border-[#0aff0a] focus:ring-1 focus:ring-[#0aff0a]/50 transition-all"
                 />
                 <button 
@@ -165,7 +172,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
             <div className="mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-fade-in space-y-8">
               <div className="text-center space-y-2">
                 <h4 className="font-orbitron font-black text-xl tracking-widest text-[#0aff0a]">FLASH PARAMETERS</h4>
-                <p className="text-[10px] text-[#0aff0a]/40 uppercase tracking-widest">Authorized Session: {license}</p>
+                <p className="text-[10px] text-[#0aff0a]/40 uppercase tracking-widest">Authorized Session: {license.trim().toUpperCase()}</p>
               </div>
               
               <div className="space-y-6 max-w-xl mx-auto">

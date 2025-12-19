@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Product, CartItem, PaymentMethod, TransactionResult } from './types.ts';
+import { Product, CartItem, PaymentMethod, PaymentMethodType, TransactionResult } from './types.ts';
 import { PRODUCTS } from './constants.tsx';
 import MatrixBackground from './components/MatrixBackground.tsx';
 import SupportChat from './components/SupportChat.tsx';
@@ -10,13 +10,23 @@ import { getMasterKeys } from './services/licenseService.ts';
 
 const App: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('elon_cart');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('elon_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Cart recovery failed", e);
+      return [];
+    }
   });
   
   const [vault, setVault] = useState<TransactionResult[]>(() => {
-    const saved = localStorage.getItem('elon_vault');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('elon_vault');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.error("Vault recovery failed", e);
+      return [];
+    }
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -25,7 +35,7 @@ const App: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<string>('');
   const [result, setResult] = useState<TransactionResult | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.USDT);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>(PaymentMethod.USDT);
   const [notification, setNotification] = useState<string | null>(null);
   
   // Software Execution State
@@ -82,6 +92,7 @@ const App: React.FC = () => {
       setVault(prev => [res, ...prev]);
       setCart([]);
     } catch (error) {
+      console.error("Checkout error:", error);
       showNotification("Quantum breach detected. Retry protocol.");
     } finally {
       setIsProcessing(false);
@@ -92,8 +103,13 @@ const App: React.FC = () => {
   const exportKeysAsPDF = () => {
     const keys = getMasterKeys();
     // @ts-ignore
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const jsPDFLib = window.jspdf;
+    if (!jsPDFLib) {
+      showNotification("PDF Core not ready. Retry.");
+      return;
+    }
+    
+    const doc = new jsPDFLib.jsPDF();
     
     doc.setFontSize(22);
     doc.text("ELON FLASHER MASTER KEY MANIFEST", 20, 20);
@@ -386,18 +402,21 @@ const App: React.FC = () => {
                     <div className="space-y-6">
                       <p className="text-[10px] font-black text-[#0aff0a] uppercase tracking-widest text-center">Select Bridge Network</p>
                       <div className="grid grid-cols-2 gap-4">
-                        {Object.values(PaymentMethod).map(m => (
-                          <button
-                            key={m}
-                            onClick={() => setPaymentMethod(m)}
-                            className={`p-5 rounded-3xl border-2 flex items-center gap-4 transition-all group ${paymentMethod === m ? 'border-[#0aff0a] bg-[#0aff0a]/10 text-[#0aff0a]' : 'border-white/5 text-white/20 hover:border-white/20'}`}
-                          >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${paymentMethod === m ? 'bg-[#0aff0a] text-black shadow-[0_0_15px_rgba(10,255,10,0.4)]' : 'bg-white/5'}`}>
-                              <i className={`fas fa-${m === 'USDT' ? 'dollar-sign' : m === 'BTC' ? 'bitcoin' : m === 'ETH' ? 'ethereum' : 'infinity'}`}></i>
-                            </div>
-                            <span className="font-orbitron font-black tracking-widest uppercase text-xs">{m}</span>
-                          </button>
-                        ))}
+                        {(Object.keys(PaymentMethod) as (keyof typeof PaymentMethod)[]).map(key => {
+                          const m = PaymentMethod[key];
+                          return (
+                            <button
+                              key={m}
+                              onClick={() => setPaymentMethod(m)}
+                              className={`p-5 rounded-3xl border-2 flex items-center gap-4 transition-all group ${paymentMethod === m ? 'border-[#0aff0a] bg-[#0aff0a]/10 text-[#0aff0a]' : 'border-white/5 text-white/20 hover:border-white/20'}`}
+                            >
+                              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${paymentMethod === m ? 'bg-[#0aff0a] text-black shadow-[0_0_15px_rgba(10,255,10,0.4)]' : 'bg-white/5'}`}>
+                                <i className={`fas fa-${m === 'USDT' ? 'dollar-sign' : m === 'BTC' ? 'bitcoin' : m === 'ETH' ? 'ethereum' : 'infinity'}`}></i>
+                              </div>
+                              <span className="font-orbitron font-black tracking-widest uppercase text-xs">{m}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 

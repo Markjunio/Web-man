@@ -24,11 +24,13 @@ export interface TransactionResult {
   quantumVerification: string;
 }
 
-export enum PaymentMethod {
-  USDT = 'USDT',
-  BTC = 'BTC',
-  ETH = 'ETH',
-  QUANTUM = 'QUANTUM'
-}
+export type PaymentMethodType = 'USDT' | 'BTC' | 'ETH' | 'QUANTUM';
+
+export const PaymentMethod = {
+  USDT: 'USDT' as PaymentMethodType,
+  BTC: 'BTC' as PaymentMethodType,
+  ETH: 'ETH' as PaymentMethodType,
+  QUANTUM: 'QUANTUM' as PaymentMethodType
+};
 
 export type SoftwareStage = 'BOOT' | 'LICENSE' | 'CONFIG' | 'EXECUTING' | 'COMPLETE';

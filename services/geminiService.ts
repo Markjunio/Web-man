@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Chat } from "@google/genai";
 import { CartItem, TransactionResult } from "../types.ts";
 
@@ -7,7 +6,6 @@ import { CartItem, TransactionResult } from "../types.ts";
  * via Gemini reasoning.
  */
 export const generateQuantumKey = async (items: CartItem[]): Promise<TransactionResult> => {
-  // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const productSummary = items.map(i => `${i.name} x${i.quantity}`).join(", ");
   
@@ -30,7 +28,6 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
     }
   });
 
-  // Use the text property directly (it's not a method).
   const jsonStr = response.text?.trim() || "{}";
   const data = JSON.parse(jsonStr);
   return {
@@ -44,7 +41,6 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
  * Creates a stateful chat session for persistent support conversations.
  */
 export const createQuantumChatSession = (): Chat => {
-  // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   return ai.chats.create({
     model: 'gemini-3-flash-preview',

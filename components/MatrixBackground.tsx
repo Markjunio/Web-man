@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface MatrixBackgroundProps {
@@ -7,7 +6,7 @@ interface MatrixBackgroundProps {
 
 const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
+  const mousePos = useRef({ x: -1000, y: -1000 });
   const mouseVelocity = useRef(0);
   const lastMousePos = useRef({ x: 0, y: 0 });
   const frameCount = useRef(0);
@@ -15,17 +14,20 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { alpha: false }); // Performance optimization
     if (!ctx) return;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
 
     const chars = '01ELONFLASHER{}[]();:.,<>?/|\\!@#$%^&*~`+-=量子传输启动';
     const charArray = chars.split('');
     const fontSize = 16;
-    const columns = Math.ceil(canvas.width / fontSize);
-    const drops: number[] = Array(columns).fill(1);
+    let columns = Math.ceil(canvas.width / fontSize);
+    let drops: number[] = Array(columns).fill(1);
 
     const handleMouseMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
@@ -40,13 +42,11 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     window.addEventListener('mousemove', handleMouseMove);
 
     const draw = () => {
-      ctx.fillStyle = isProcessing ? 'rgba(0, 15, 8, 0.15)' : 'rgba(0, 8, 5, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Throttle to 30fps for background to save CPU for main thread
+      if (frameCount.current % 2 === 0) {
+        ctx.fillStyle = isProcessing ? 'rgba(0, 15, 8, 0.15)' : 'rgba(0, 8, 5, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const baseUpdateFreq = isProcessing ? 1 : 2;
-      const velocityBoost = Math.floor(mouseVelocity.current / 5);
-      
-      if (frameCount.current % Math.max(1, baseUpdateFreq - velocityBoost) === 0) {
         ctx.font = `${fontSize}px monospace`;
 
         for (let i = 0; i < drops.length; i++) {
@@ -83,8 +83,7 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     const animationId = requestAnimationFrame(draw);
 
     const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      resize();
       const newColumns = Math.ceil(canvas.width / fontSize);
       if (newColumns > drops.length) {
         const extra = Array(newColumns - drops.length).fill(1);
@@ -105,6 +104,7 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     <canvas
       ref={canvasRef}
       className={`fixed top-0 left-0 w-full h-full -z-10 pointer-events-none transition-opacity duration-1000 ${isProcessing ? 'opacity-60' : 'opacity-30'}`}
+      style={{ background: '#000805' }}
     />
   );
 };

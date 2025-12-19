@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,6 @@
     <title>ELON FLASHER | Quantum USDT Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Added jspdf for real PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
@@ -16,6 +14,8 @@
             background-color: #000805;
             color: #e0ffe0;
             font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            overflow-x: hidden;
         }
 
         .font-orbitron {
@@ -47,7 +47,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(10, 255, 10, 0.05) 50%, rgba(0, 0, 0, 0) 50%);
+            background: linear-gradient(to bottom, rgba(10, 255, 10, 0.03) 50%, rgba(0, 0, 0, 0) 50%);
             background-size: 100% 4px;
             pointer-events: none;
             z-index: 9999;
@@ -61,6 +61,15 @@
             background: rgba(10, 30, 15, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(10, 255, 10, 0.2);
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+          animation: fadeIn 0.4s ease-out forwards;
         }
     </style>
 <script type="importmap">
@@ -78,7 +87,6 @@
 <body>
     <div id="root"></div>
     <div class="scanline-overlay"></div>
-    <!-- Entry point script -->
     <script type="module" src="index.tsx"></script>
 </body>
 </html>

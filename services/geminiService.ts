@@ -2,11 +2,20 @@ import { GoogleGenAI, Type, Chat } from "@google/genai";
 import { CartItem, TransactionResult } from "../types.ts";
 
 /**
+ * Accesses the API key from the global process shim.
+ */
+const getApiKey = () => {
+  // Rely on the window.process shim defined in index.html
+  return (window as any).process?.env?.API_KEY || '';
+};
+
+/**
  * Simulates a backend call to generate a cryptographically "verified" license key
  * via Gemini reasoning.
  */
 export const generateQuantumKey = async (items: CartItem[]): Promise<TransactionResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   const productSummary = items.map(i => `${i.name} x${i.quantity}`).join(", ");
   
   const response = await ai.models.generateContent({
@@ -41,7 +50,8 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
  * Creates a stateful chat session for persistent support conversations.
  */
 export const createQuantumChatSession = (): Chat => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
   return ai.chats.create({
     model: 'gemini-3-flash-preview',
     config: {

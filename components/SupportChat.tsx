@@ -1,7 +1,5 @@
-
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createQuantumChatSession } from '../services/geminiService.ts';
-import { GenerateContentResponse } from '@google/genai';
 
 const SupportChat: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,15 +7,21 @@ const SupportChat: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Initialize a stable chat session for this component instance
-  const chatSession = useMemo(() => createQuantumChatSession(), []);
+  
+  const chatSessionRef = useRef<any>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  const getSession = async () => {
+    if (!chatSessionRef.current) {
+      chatSessionRef.current = await createQuantumChatSession();
+    }
+    return chatSessionRef.current;
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -28,8 +32,8 @@ const SupportChat: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const result: GenerateContentResponse = await chatSession.sendMessage({ message: userMsg });
-      // The GenerateContentResponse features a text property (not a method).
+      const session = await getSession();
+      const result = await session.sendMessage({ message: userMsg });
       const responseText = result.text || "Connection to core lost. Retry protocol.";
       setMessages(prev => [...prev, { role: 'ai', text: responseText }]);
     } catch (error) {
@@ -103,7 +107,10 @@ const SupportChat: React.FC = () => {
         </div>
       ) : (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsOpen(true);
+            getSession();
+          }}
           className="w-14 h-14 bg-[#0aff0a] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(10,255,10,0.4)] hover:scale-110 transition-all group border-2 border-black relative"
         >
           <div className="absolute inset-0 rounded-full border border-[#0aff0a] animate-ping opacity-20"></div>

@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ELON FLASHER | Quantum USDT Marketplace</title>
+    
+    <!-- Preconnect to speed up cross-origin requests -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://esm.sh">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- External CSS loaded in parallel -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script type="importmap">
 {
   "imports": {
@@ -16,19 +27,27 @@
   }
 }
 </script>
+    
     <script>
-      window.process = { 
-        env: { 
-          API_KEY: '' 
-        } 
+      // Critical environment shim
+      window.process = { env: { API_KEY: '' } };
+      
+      // Tailwind config
+      window.tailwind = {
+        theme: {
+          extend: {
+            colors: {
+              neon: '#0aff0a',
+              dark: '#000805',
+            }
+          }
+        }
       };
     </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap');
-        
         :root {
             --neon-green: #0aff0a;
             --dark-bg: #000805;
@@ -46,26 +65,54 @@
 
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #0aff0a22; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #0aff0a44; }
-
         .glass-panel {
-            background: rgba(0, 15, 8, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(10, 255, 10, 0.1);
+            background: rgba(0, 15, 8, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(10, 255, 10, 0.15);
         }
 
         .glow-text {
             text-shadow: 0 0 10px rgba(10, 255, 10, 0.5);
         }
 
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .animate-spin-slow { animation: spin 8s linear infinite; }
+        @keyframes pulsate-neon {
+            0%, 100% { text-shadow: 0 0 7px #0aff0a, 0 0 10px #0aff0a; opacity: 1; }
+            50% { text-shadow: 0 0 2px #0aff0a, 0 0 5px #0aff0a; opacity: 0.85; }
+        }
+
+        .neon-pulsate {
+            animation: pulsate-neon 3s infinite ease-in-out;
+            color: var(--neon-green);
+        }
+
+        @keyframes fadeIn { 
+          from { opacity: 0; transform: translateY(8px); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        #root:empty {
+          background: #000805;
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        #root:empty::after {
+          content: "INITIALIZING QUANTUM CORE...";
+          font-family: 'Orbitron', sans-serif;
+          color: #0aff0a;
+          font-size: 10px;
+          letter-spacing: 0.3em;
+          animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
     </style>
 </head>
 <body>

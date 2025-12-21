@@ -3,7 +3,7 @@
  */
 const MASTER_KEYS = [
   'XTG654GHD',
-  'TCX5FGHDSG',
+  'TCX5FGHD',
   'DXYTES6GH0',
   'OMEGA-ROOT-ACCESS-5.0',
   'FLASH-999-X-QUANTUM',
@@ -29,15 +29,15 @@ export const validateLicenseKey = (key: string): boolean => {
   
   const cleanKey = key.trim().toUpperCase();
   
-  // 1. Check persistent blacklist (Used Keys) - THIS IS THE PRIMARY GUARD
+  // 1. Static administrative keys ALWAYS work
+  if (MASTER_KEYS.includes(cleanKey)) {
+    return true;
+  }
+  
+  // 2. Check persistent blacklist (Used Keys)
   if (isKeyAlreadyUsed(cleanKey)) {
     console.warn(`VALIDATION_FAILED: Key ${cleanKey} is already EXPENDED.`);
     return false;
-  }
-  
-  // 2. Check static administrative keys
-  if (MASTER_KEYS.includes(cleanKey)) {
-    return true;
   }
   
   // 3. Check purchased keys in the Vault
@@ -71,21 +71,29 @@ export const isKeyAlreadyUsed = (cleanKey: string): boolean => {
 
 /**
  * The "Burn" Protocol: 
- * 1. Blacklists the key permanently.
+ * 1. Blacklists the key permanently if not a master key.
  * 2. Physically removes it from the user's active Vault storage.
  */
 export const markKeyAsUsed = (key: string) => {
   const cleanKey = key.trim().toUpperCase();
   
+  // We don't "burn" master keys, they are for development/test
+  if (MASTER_KEYS.includes(cleanKey)) {
+    console.log(`MASTER_KEY_BYPASS: Key ${cleanKey} skipped burn protocol.`);
+    return;
+  }
+  
   try {
     // A. Update Blacklist (Permanent used status)
-    const usedKeys = JSON.parse(localStorage.getItem('used_elon_keys') || '[]');
+    const usedKeysRaw = localStorage.getItem('used_elon_keys');
+    const usedKeys = usedKeysRaw ? JSON.parse(usedKeysRaw) : [];
+    
     if (!usedKeys.includes(cleanKey)) {
       usedKeys.push(cleanKey);
       localStorage.setItem('used_elon_keys', JSON.stringify(usedKeys));
     }
 
-    // B. "Remove from Backend" (Simulated by physically deleting from active vault)
+    // B. Remove from active vault
     const vaultData = localStorage.getItem('elon_vault');
     if (vaultData) {
       const vault = JSON.parse(vaultData);
@@ -95,9 +103,7 @@ export const markKeyAsUsed = (key: string) => {
       localStorage.setItem('elon_vault', JSON.stringify(updatedVault));
     }
 
-    console.log(`BURN_COMPLETE: Key ${cleanKey} neutralized and removed from active pool.`);
-    
-    // Dispatch event to refresh UI components globally
+    console.log(`BURN_COMPLETE: Key ${cleanKey} neutralized.`);
     window.dispatchEvent(new Event('vault_updated'));
   } catch (e) {
     console.error("Burn sequence failed:", e);

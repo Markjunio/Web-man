@@ -10,6 +10,7 @@ export interface Product {
   badge?: string;
   icon: string;
   command: string;
+  specs?: { label: string; value: string }[];
 }
 
 export interface CartItem extends Product {
@@ -33,4 +34,12 @@ export const PaymentMethod = {
   QUANTUM: 'QUANTUM' as PaymentMethodType
 };
 
-export type SoftwareStage = 'BOOT' | 'LICENSE' | 'CONFIG' | 'EXECUTING' | 'COMPLETE';
+export type SoftwareStage = 
+  | 'BOOT' 
+  | 'LICENSE' 
+  | 'TYPE_SELECT' 
+  | 'COIN_SELECT' 
+  | 'NETWORK_SELECT' 
+  | 'CONFIG' 
+  | 'EXECUTING' 
+  | 'COMPLETE';

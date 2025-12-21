@@ -1,5 +1,3 @@
-
-import { GoogleGenAI, Type, Chat } from "@google/genai";
 import { CartItem, TransactionResult } from "../types.ts";
 
 /**
@@ -11,9 +9,10 @@ const getApiKey = () => {
 
 /**
  * Generates a cryptographically unique license key.
- * Uses robust JSON extraction to handle various AI output formats.
+ * Uses dynamic import to keep the main bundle light.
  */
 export const generateQuantumKey = async (items: CartItem[]): Promise<TransactionResult> => {
+  const { GoogleGenAI, Type } = await import("@google/genai");
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
   const productSummary = items.map(i => `${i.name} x${i.quantity}`).join(", ");
@@ -39,7 +38,6 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
   });
 
   let text = response.text || "{}";
-  // Strip markdown code blocks if present
   text = text.replace(/```json/g, "").replace(/```/g, "").trim();
   
   try {
@@ -58,8 +56,10 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
 
 /**
  * Creates a stateful chat session for support.
+ * Uses dynamic import to avoid blocking the main thread.
  */
-export const createQuantumChatSession = (): Chat => {
+export const createQuantumChatSession = async (): Promise<any> => {
+  const { GoogleGenAI } = await import("@google/genai");
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
   return ai.chats.create({

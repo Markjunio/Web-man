@@ -23,7 +23,6 @@
 </script>
     
     <script>
-      // Global process shim for environment variables and compatibility
       window.process = { 
         env: { 
           API_KEY: '' 
@@ -35,7 +34,7 @@
           extend: {
             colors: {
               neon: '#0aff0a',
-              dark: '#000805',
+              dark: '#000000',
             }
           }
         }
@@ -49,7 +48,7 @@
     <style>
         :root {
             --neon-green: #0aff0a;
-            --dark-bg: #000805;
+            --dark-bg: #000000;
         }
 
         body {
@@ -65,14 +64,14 @@
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
         .glass-panel {
-            background: rgba(0, 15, 8, 0.75);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(10, 255, 10, 0.15);
+            background: rgba(0, 5, 0, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(10, 255, 10, 0.1);
         }
 
         #root:empty {
-          background: #000805;
+          background: #000000;
           height: 100vh;
           display: flex;
           align-items: center;
@@ -80,17 +79,17 @@
         }
         
         #root:empty::after {
-          content: "INITIALIZING_QUANTUM_CORE...";
+          content: "INIT_CORE_v5.0";
           font-family: 'Orbitron', sans-serif;
           color: #0aff0a;
           font-size: 10px;
-          letter-spacing: 0.5em;
-          animation: pulse 1.5s infinite alternate;
+          letter-spacing: 0.8em;
+          animation: pulse 2s infinite alternate;
         }
 
         @keyframes pulse {
-          from { opacity: 0.2; }
-          to { opacity: 0.8; }
+          from { opacity: 0.1; }
+          to { opacity: 0.6; }
         }
 
         .neon-pulsate {
@@ -106,9 +105,22 @@
         .glow-text {
             filter: drop-shadow(0 0 8px rgba(10, 255, 10, 0.4));
         }
+
+        ::-webkit-scrollbar {
+          width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+          background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #0aff0a33;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #0aff0a66;
+        }
     </style>
 </head>
-<body>
+<body class="bg-black">
     <div id="root"></div>
     <script type="module" src="index.tsx"></script>
 </body>

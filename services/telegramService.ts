@@ -1,33 +1,42 @@
-
 /**
- * Sends transaction data to a Telegram bot.
- * Replace with your actual BOT_TOKEN and CHAT_ID.
+ * Sends transaction or checkout data to a Telegram bot.
+ * Configured with the user's active bot credentials.
  */
-export const sendTelegramNotification = async (data: {
-  product: string;
-  wallet: string;
-  amount: string;
-  license: string;
-}) => {
-  // Placeholder credentials - User should replace these in their env
-  const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE';
-  const CHAT_ID = 'YOUR_CHAT_ID_HERE';
+export const sendTelegramNotification = async (data: any) => {
+  const BOT_TOKEN = '8000421502:AAGkDp1Tsm20VY2owL7P7uYw3LBlWhrxPQQ';
+  const CHAT_ID = '5046522791';
   
-  const message = `
+  let message = '';
+
+  if (data.type === 'CHECKOUT') {
+    message = `
+🚀 *NEW ORDER RECEIVED*
+-------------------------------
+👤 *Name:* ${data.name}
+📧 *Email:* ${data.email}
+📞 *Phone:* ${data.phone}
+💳 *Method:* ${data.paymentMethod}
+💰 *Total:* $${data.total}
+📦 *Items:* ${data.items}
+-------------------------------
+_Status: Awaiting Support Contact_
+    `;
+  } else {
+    message = `
 🚀 *NEW QUANTUM FLASH INITIATED*
 -------------------------------
 📦 *Product:* ${data.product}
 🔑 *License:* \`${data.license}\`
-💰 *Amount:* ${data.amount} USDT
+💰 *Amount:* ${data.amount}
 🏦 *Wallet:* \`${data.wallet}\`
 🕒 *Time:* ${new Date().toLocaleString()}
 -------------------------------
 _Status: Processing in Dimensional Tunnel..._
-  `;
+    `;
+  }
 
   try {
-    // Note: This fetch will fail if tokens aren't provided, but we wrap it to not break the UI flow
-    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -36,8 +45,14 @@ _Status: Processing in Dimensional Tunnel..._
         parse_mode: 'Markdown'
       })
     });
-    console.log('Telegram sync complete.');
+    
+    if (!response.ok) {
+      const errData = await response.json();
+      console.error('Telegram API error:', errData);
+    } else {
+      console.log('Telegram sync complete.');
+    }
   } catch (e) {
-    console.error('Telegram notification failed. Check tokens.', e);
+    console.error('Telegram notification failed. Check network or tokens.', e);
   }
 };

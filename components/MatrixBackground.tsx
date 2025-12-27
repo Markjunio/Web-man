@@ -13,7 +13,7 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     
     const ctx = canvas.getContext('2d', { 
       alpha: false,
-      desynchronized: true // Hint for lower latency
+      desynchronized: true 
     });
     if (!ctx) return;
 
@@ -30,16 +30,18 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
     };
     
     resize();
-    window.addEventListener('resize', resize, { passive: true });
+    
+    const controller = new AbortController();
+    window.addEventListener('resize', resize, { passive: true, signal: controller.signal });
 
     const fontSize = 16;
     let columns = Math.ceil(width / fontSize);
-    let drops: number[] = Array(columns).fill(0).map(() => Math.random() * -100);
-    const chars = '01ELONFLASHER{}[]();:.,<>?/|\\!@#$%^&*~`+-=量子传输启动';
+    let drops: number[] = Array(columns).fill(0).map(() => Math.random() * -50);
+    const chars = '01ELONFLASHER'; 
 
     let animReq: number;
     let lastTime = 0;
-    const fps = 30;
+    const fps = 10; // Slightly higher for smoother but still light animation
     const interval = 1000 / fps;
 
     const draw = (currentTime: number) => {
@@ -49,47 +51,42 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
       if (delta < interval) return;
       lastTime = currentTime - (delta % interval);
 
-      ctx.fillStyle = 'rgba(0, 8, 5, 0.15)';
+      ctx.fillStyle = 'rgba(0, 8, 5, 0.2)'; // More transparency for smoother fading
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px monospace`;
+      ctx.fillStyle = isProcessing ? '#ffffff' : '#0aff0a';
       
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * fontSize;
         const y = drops[i] * fontSize;
 
-        if (isProcessing && Math.random() > 0.95) {
-          ctx.fillStyle = '#ffffff';
-        } else {
-          ctx.fillStyle = '#0aff0a';
-        }
-
         ctx.fillText(char, x, y);
 
         if (y > height && Math.random() > 0.975) {
           drops[i] = 0;
         }
-        drops[i] += isProcessing ? 1.5 : 1;
+        drops[i] += isProcessing ? 1.5 : 1.0;
       }
     };
 
-    // Use a delay to ensure the main UI has hydrated and rendered before the canvas heavy lifting starts
+    // Reduced delay for immediate feedback
     const timer = setTimeout(() => {
       animReq = requestAnimationFrame(draw);
-    }, 500);
+    }, 100);
 
     return () => {
       clearTimeout(timer);
+      controller.abort();
       if (animReq) cancelAnimationFrame(animReq);
-      window.removeEventListener('resize', resize);
     };
   }, [isProcessing]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none"
+      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-25 transition-opacity duration-1000"
       style={{ background: '#000805' }}
     />
   );

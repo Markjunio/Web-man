@@ -34,11 +34,11 @@ const SupportChat: React.FC = () => {
     try {
       const session = await getSession();
       const result = await session.sendMessage({ message: userMsg });
-      const responseText = result.text || "Connection to core lost. Retry protocol.";
+      const responseText = result.text || "Sorry, I lost connection. Please try again.";
       setMessages(prev => [...prev, { role: 'ai', text: responseText }]);
     } catch (error) {
       console.error(error);
-      setMessages(prev => [...prev, { role: 'ai', text: "Error: Quantum connection unstable. Ensure your API key is valid." }]);
+      setMessages(prev => [...prev, { role: 'ai', text: "Error: Connection unstable. Please check your network." }]);
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +51,7 @@ const SupportChat: React.FC = () => {
           <div className="bg-[#0a2a0a] p-4 flex justify-between items-center border-b border-[#0aff0a]">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-[#0aff0a] animate-pulse"></div>
-              <h3 className="font-orbitron font-bold text-[#0aff0a] text-sm tracking-widest">AI CORE v5.0</h3>
+              <h3 className="font-orbitron font-bold text-[#0aff0a] text-sm tracking-widest">HELP CENTER</h3>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-white hover:text-[#0aff0a]">
               <i className="fas fa-times"></i>
@@ -60,8 +60,8 @@ const SupportChat: React.FC = () => {
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/40">
             {messages.length === 0 && (
               <div className="text-center py-10 space-y-2">
-                <i className="fas fa-atom text-3xl text-[#0aff0a]/20 animate-spin-slow"></i>
-                <p className="text-[#80a080] text-xs italic">Awaiting query from terminal...</p>
+                <i className="fas fa-comment-dots text-3xl text-[#0aff0a]/20 animate-spin-slow"></i>
+                <p className="text-[#80a080] text-xs italic">How can I help you today?</p>
               </div>
             )}
             {messages.map((m, i) => (
@@ -93,7 +93,7 @@ const SupportChat: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Enter quantum query..."
+              placeholder="Type your question..."
               className="flex-1 bg-black/60 border border-[#0aff0a]/30 rounded-lg px-3 py-2 text-[#0aff0a] text-xs outline-none focus:border-[#0aff0a] transition-all"
             />
             <button 
@@ -114,7 +114,7 @@ const SupportChat: React.FC = () => {
           className="w-14 h-14 bg-[#0aff0a] rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(10,255,10,0.4)] hover:scale-110 transition-all group border-2 border-black relative"
         >
           <div className="absolute inset-0 rounded-full border border-[#0aff0a] animate-ping opacity-20"></div>
-          <i className="fas fa-brain text-xl text-black"></i>
+          <i className="fas fa-headset text-xl text-black"></i>
         </button>
       )}
     </div>

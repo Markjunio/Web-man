@@ -20,17 +20,17 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: `The user has purchased: ${productSummary}. 
-               Generate a secure verification package. 
+               Generate a secure license key. 
                The 'licenseKey' must be exactly 16 characters, alphanumeric, uppercase.
-               The 'quantumVerification' should be a technical 2-sentence explanation.`,
+               The 'quantumVerification' should be a simple 2-sentence confirmation that the key is ready to use.`,
     config: {
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
-          transactionId: { type: Type.STRING, description: "Starts with ELON-" },
+          transactionId: { type: Type.STRING, description: "Starts with ORDER-" },
           licenseKey: { type: Type.STRING, description: "16-char alphanumeric uppercase" },
-          quantumVerification: { type: Type.STRING, description: "Technical status" }
+          quantumVerification: { type: Type.STRING, description: "Simple status message" }
         },
         required: ["transactionId", "licenseKey", "quantumVerification"]
       }
@@ -50,7 +50,7 @@ export const generateQuantumKey = async (items: CartItem[]): Promise<Transaction
     };
   } catch (e) {
     console.error("Parse failure, raw text:", text);
-    throw new Error("Quantum decryption failed.");
+    throw new Error("Could not create key.");
   }
 };
 
@@ -65,10 +65,11 @@ export const createQuantumChatSession = async (): Promise<any> => {
   return ai.chats.create({
     model: 'gemini-3-flash-preview',
     config: {
-      systemInstruction: `You are the ELON FLASHER Quantum AI Core. 
-      You are technical, efficient, and slightly mysterious. 
-      You speak in terms of 'nodes', 'dimensional portals', and 'The Digital Forest'.
-      Users use you for support. Keep responses concise and immersive.`,
+      systemInstruction: `You are the ELON FLASHER Support Assistant. 
+      Use clear and simple English.
+      Be helpful, friendly, and efficient. 
+      Your goal is to help users understand our crypto transfer tools and solve their problems.
+      Keep answers short and easy to read.`,
     },
   });
 };

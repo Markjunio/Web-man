@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, SoftwareStage } from '../types.ts';
 import { validateLicenseKey, markKeyAsUsed, isKeyAlreadyUsed } from '../services/licenseService.ts';
@@ -27,11 +28,11 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
   useEffect(() => {
     if (stage === 'BOOT') {
       const bootLines = [
-        `> INITIALIZING ${product.name} CORE V${product.version}...`,
-        "> LOADING DIMENSIONAL TUNNELLING PROTOCOLS...",
-        "> ESTABLISHING HANDSHAKE WITH FOREST NODES...",
-        "> QUANTUM ENCRYPTION: SECURED [AES-Q-512]",
-        "> AWAITING LICENSE VERIFICATION..."
+        `> STARTING ${product.name}...`,
+        "> LOADING SYSTEM PROTOCOLS...",
+        "> CONNECTING TO SERVERS...",
+        "> SECURITY CHECK: PASSED",
+        "> PLEASE ENTER YOUR LICENSE KEY..."
       ];
       let i = 0;
       const interval = setInterval(() => {
@@ -45,22 +46,22 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
       }, 300);
       return () => clearInterval(interval);
     }
-  }, [stage, product.name, product.version]);
+  }, [stage, product.name]);
 
   useEffect(() => {
     if (stage === 'EXECUTING') {
       const executionLines = [
-        `> SYNCING WITH TARGET WALLET: ${wallet.slice(0,6)}...${wallet.slice(-4)}`,
-        `> FLASH PROTOCOL: ${flashType.toUpperCase()}`,
-        `> CURRENCY: ${coin} ${network ? `[${network}]` : ''}`,
-        `> PREPARING ${amount} ${coin} FLASH PACKET...`,
-        "> BYPASSING NODE DETECTION ALGORITHMS...",
-        "> OPENING DIMENSIONAL RIFT...",
-        "> INJECTING LIQUIDITY STREAM...",
+        `> CONNECTING TO WALLET: ${wallet.slice(0,6)}...${wallet.slice(-4)}`,
+        `> METHOD: ${flashType.toUpperCase()}`,
+        `> ASSET: ${coin} ${network ? `[${network}]` : ''}`,
+        `> PREPARING ${amount} ${coin} TRANSFER...`,
+        "> BYPASSING FILTERS...",
+        "> OPENING SECURE CONNECTION...",
+        "> SENDING DATA STREAM...",
         "> HASH: 0X" + Math.random().toString(16).slice(2, 12).toUpperCase(),
-        "> TUNNELING THROUGH BLOCK 21.092.11...",
-        "> OBFUSCATING TRANSACTION TRACES...",
-        "> FINALIZING QUANTUM FLASH..."
+        "> TUNNELING DATA...",
+        "> CLEANING TRACES...",
+        "> FINISHING TRANSFER..."
       ];
       let i = 0;
       const interval = setInterval(() => {
@@ -84,30 +85,30 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
     const cleanKey = license.trim().toUpperCase();
     
     if (isKeyAlreadyUsed(cleanKey)) {
-      setError('LICENSE EXPENDED');
-      setLogs(prev => [...prev, `> ERROR: SINGLE-USE KEY ${cleanKey} ALREADY EXHAUSTED.`]);
+      setError('KEY ALREADY USED');
+      setLogs(prev => [...prev, `> ERROR: THIS KEY HAS ALREADY BEEN USED.`]);
       return;
     }
 
     if (validateLicenseKey(cleanKey)) {
       setError('');
-      setLogs(prev => [...prev, `> LICENSE VALIDATED: [${cleanKey}]`, `> CORE ACCESS GRANTED.`]);
+      setLogs(prev => [...prev, `> KEY VALIDATED: [${cleanKey}]`, `> SYSTEM ACCESS GRANTED.`]);
       setStage('TYPE_SELECT');
     } else {
-      setError('INVALID SIGNATURE');
-      setLogs(prev => [...prev, `> ERROR: AUTHENTICATION FAILED FOR SIGNATURE ${cleanKey}`]);
+      setError('INVALID KEY');
+      setLogs(prev => [...prev, `> ERROR: INCORRECT LICENSE KEY.`]);
     }
   };
 
   const handleTypeSelect = (type: string) => {
     setFlashType(type);
-    setLogs(prev => [...prev, `> EXTRACTION MODE SET: ${type.toUpperCase()}`]);
+    setLogs(prev => [...prev, `> TRANSFER TYPE SET: ${type.toUpperCase()}`]);
     setStage('COIN_SELECT');
   };
 
   const handleCoinSelect = (selectedCoin: string) => {
     setCoin(selectedCoin);
-    setLogs(prev => [...prev, `> TARGET CURRENCY: ${selectedCoin}`]);
+    setLogs(prev => [...prev, `> TARGET ASSET: ${selectedCoin}`]);
     if (selectedCoin === 'USDT') {
       setStage('NETWORK_SELECT');
     } else {
@@ -118,15 +119,29 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
 
   const handleNetworkSelect = (selectedNetwork: string) => {
     setNetwork(selectedNetwork);
-    setLogs(prev => [...prev, `> NETWORK BRIDGE: ${selectedNetwork}`]);
+    setLogs(prev => [...prev, `> NETWORK: ${selectedNetwork}`]);
     setStage('CONFIG');
   };
 
   const handleFlashSubmit = async () => {
+    const numAmount = parseFloat(amount);
+    
     if (!wallet || !amount) {
-      setError('REQUIRED FIELDS MISSING');
+      setError('ALL FIELDS REQUIRED');
       return;
     }
+
+    if (numAmount > product.maxAmount) {
+      setError(`LIMIT EXCEEDED: MAX ${product.maxAmount} ${coin}`);
+      setLogs(prev => [...prev, `> ERROR: ATTEMPTED ${numAmount} ${coin}. SOFTWARE LIMIT IS ${product.maxAmount} ${coin}.`]);
+      return;
+    }
+
+    if (numAmount <= 0) {
+      setError('INVALID AMOUNT');
+      return;
+    }
+
     setError('');
     setStage('EXECUTING');
     
@@ -152,7 +167,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
               <div className="w-2.5 h-2.5 rounded-full bg-[#0aff0a] animate-pulse"></div>
             </div>
             <span className="font-mono text-[8px] md:text-[10px] font-black text-[#0aff0a]/70 uppercase tracking-[0.1em] md:tracking-[0.2em] truncate max-w-[150px] md:max-w-none">
-              root@elon-core:/{product.id}/wizard
+              system@elon-flasher:/{product.id}/setup
             </span>
           </div>
           <button onClick={onClose} className="text-white/40 hover:text-red-500 transition-colors p-1">
@@ -173,11 +188,11 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           {/* Step 1: License */}
           {stage === 'LICENSE' && (
             <div className="mt-4 md:mt-8 p-6 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-4 md:space-y-6">
-              <h4 className="font-orbitron font-black text-base md:text-xl text-center tracking-wider md:tracking-widest text-[#0aff0a]">LICENSE AUTHENTICATION</h4>
+              <h4 className="font-orbitron font-black text-base md:text-xl text-center tracking-wider md:tracking-widest text-[#0aff0a]">LICENSE CHECK</h4>
               <div className="flex flex-col gap-3 md:gap-4">
                 <input
                   type="text"
-                  placeholder="ENTER QUANTUM KEY"
+                  placeholder="PASTE YOUR KEY HERE"
                   value={license}
                   onChange={(e) => setLicense(e.target.value)}
                   className="w-full bg-black/60 border border-[#0aff0a]/30 rounded-xl px-4 py-3.5 md:py-4 text-center text-base md:text-lg font-bold tracking-[0.1em] md:tracking-[0.2em] text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
@@ -186,12 +201,12 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
                   onClick={handleLicenseSubmit}
                   className="w-full py-4 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] active:scale-95 transition-all shadow-[0_0_20px_rgba(10,255,10,0.3)]"
                 >
-                  VALIDATE
+                  START SYSTEM
                 </button>
               </div>
               <div className="text-center">
                 <button onClick={onPurchaseRequest} className="text-[8px] md:text-[10px] text-[#0aff0a]/60 hover:text-[#0aff0a] font-bold uppercase tracking-widest transition-colors">
-                  Acquire license from Marketplace
+                  I don't have a key yet
                 </button>
               </div>
               {error && <p className="text-red-500 font-bold text-center text-[9px] md:text-[10px] animate-pulse uppercase tracking-widest">{error}</p>}
@@ -201,13 +216,13 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           {/* Step 2: Flash Type Choice */}
           {stage === 'TYPE_SELECT' && (
             <div className="mt-4 md:mt-8 p-4 md:p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-4 md:space-y-6">
-              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT EXTRACTION PROTOCOL</h4>
+              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT TRANSFER TYPE</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                 {[
-                  { id: 'tradable', title: 'TRADABLE', desc: 'Liquid Assets' },
-                  { id: 'permanent', title: 'PERMANENT', desc: 'Infinite Residency' },
-                  { id: 'undetectable', title: 'STEALTH', desc: 'Zero Trace' },
-                  { id: 'all', title: 'OMEGA', desc: 'Full Suite' }
+                  { id: 'tradable', title: 'TRADABLE', desc: 'Standard Liquid Funds' },
+                  { id: 'permanent', title: 'PERMANENT', desc: 'Fixed Balance' },
+                  { id: 'undetectable', title: 'STEALTH', desc: 'Hidden Transaction' },
+                  { id: 'all', title: 'OMEGA', desc: 'Full Access Mode' }
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -225,7 +240,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           {/* Step 3: Coin Choice */}
           {stage === 'COIN_SELECT' && (
             <div className="mt-4 md:mt-8 p-6 md:p-8 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-6">
-              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT TARGET ASSET</h4>
+              <h4 className="font-orbitron font-black text-sm md:text-lg text-center tracking-widest text-[#0aff0a] uppercase">SELECT ASSET</h4>
               <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-4 md:gap-6">
                 {[
                   { id: 'BITCOIN', icon: 'fa-bitcoin' },
@@ -267,7 +282,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
           {stage === 'CONFIG' && (
             <div className="mt-4 md:mt-8 p-5 md:p-10 bg-[#0aff0a]/5 border border-[#0aff0a]/20 rounded-2xl md:rounded-3xl animate-fade-in space-y-6 md:space-y-8">
               <div className="text-center space-y-2">
-                <h4 className="font-orbitron font-black text-base md:text-xl tracking-widest text-[#0aff0a]">FLASH PARAMETERS</h4>
+                <h4 className="font-orbitron font-black text-base md:text-xl tracking-widest text-[#0aff0a]">TRANSFER SETUP</h4>
                 <div className="flex flex-wrap justify-center gap-2">
                    <span className="text-[8px] md:text-[9px] bg-[#0aff0a]/20 px-2 py-1 rounded text-[#0aff0a] font-black uppercase">{flashType}</span>
                    <span className="text-[8px] md:text-[9px] bg-[#0aff0a]/20 px-2 py-1 rounded text-[#0aff0a] font-black uppercase">{coin}</span>
@@ -277,17 +292,20 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
               
               <div className="space-y-5 md:space-y-6 max-w-xl mx-auto">
                 <div className="space-y-2">
-                  <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60 ml-1">Destination Wallet</label>
+                  <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60 ml-1">Wallet Address</label>
                   <input
                     type="text"
-                    placeholder="Enter recipient address..."
+                    placeholder="Paste recipient address..."
                     value={wallet}
                     onChange={(e) => setWallet(e.target.value)}
                     className="w-full bg-black/80 border border-[#0aff0a]/30 rounded-xl px-4 py-3.5 md:py-4 font-mono text-xs md:text-sm text-[#0aff0a] outline-none focus:border-[#0aff0a] transition-all"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60 ml-1">Amount (${coin})</label>
+                  <div className="flex justify-between px-1">
+                    <label className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#0aff0a]/60">Amount to send</label>
+                    <span className="text-[8px] md:text-[9px] font-mono text-[#0aff0a]/40">LIMIT: {product.maxAmount} {coin}</span>
+                  </div>
                   <input
                     type="number"
                     placeholder="0.00"
@@ -304,7 +322,7 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
                 onClick={handleFlashSubmit}
                 className="w-full max-w-xl mx-auto py-4 md:py-5 bg-[#0aff0a] text-black font-black uppercase rounded-xl hover:bg-[#00ffaa] shadow-[0_10px_40px_rgba(10,255,10,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-xs md:text-sm"
               >
-                <i className="fas fa-bolt"></i> INITIATE EXTRACTION
+                <i className="fas fa-bolt"></i> START TRANSFER
               </button>
             </div>
           )}
@@ -315,8 +333,8 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
                  <i className="fas fa-satellite-dish text-4xl md:text-6xl text-[#0aff0a]"></i>
                </div>
                <div className="mt-8 md:mt-10 text-center space-y-4 bg-black/90 p-6 md:p-8 rounded-2xl border border-[#0aff0a]/20 backdrop-blur-md w-full max-w-xs md:max-w-md">
-                 <h2 className="font-orbitron font-black text-lg md:text-2xl text-[#0aff0a] tracking-widest uppercase">EXTRACTION ACTIVE</h2>
-                 <p className="text-[9px] md:text-xs text-[#b0ffb0] animate-pulse font-mono uppercase">Neural Handshake Synced</p>
+                 <h2 className="font-orbitron font-black text-lg md:text-2xl text-[#0aff0a] tracking-widest uppercase">SENDING ASSETS</h2>
+                 <p className="text-[9px] md:text-xs text-[#b0ffb0] animate-pulse font-mono uppercase">Please wait...</p>
                  <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden mt-6">
                     <div className="bg-[#0aff0a] h-full animate-[progress_10s_linear_infinite]" style={{ width: '40%' }}></div>
                  </div>
@@ -331,13 +349,13 @@ const SoftwarePortal: React.FC<SoftwarePortalProps> = ({ product, onClose, onPur
               </div>
               <div className="space-y-3 md:space-y-4">
                 <h3 className="font-orbitron text-2xl md:text-4xl font-black text-[#0aff0a] tracking-tighter uppercase">SUCCESS</h3>
-                <p className="text-[10px] md:text-sm text-[#b0ffb0]/70 max-w-md mx-auto leading-relaxed">Liquidity packet tunneled successfully. Status: <b>Verified</b>.</p>
+                <p className="text-[10px] md:text-sm text-[#b0ffb0]/70 max-w-md mx-auto leading-relaxed">Your transfer has been processed successfully. Status: <b>Completed</b>.</p>
               </div>
               <button 
                 onClick={onClose}
                 className="w-full max-w-xs mx-auto py-4 md:py-5 border-2 border-[#0aff0a] text-[#0aff0a] font-black uppercase rounded-xl md:rounded-2xl hover:bg-[#0aff0a] hover:text-black transition-all text-xs md:text-sm"
               >
-                DISCONNECT TERMINAL
+                CLOSE WINDOW
               </button>
             </div>
           )}

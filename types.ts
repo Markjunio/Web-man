@@ -11,6 +11,7 @@ export interface Product {
   icon: string;
   command: string;
   specs?: { label: string; value: string }[];
+  maxAmount: number;
 }
 
 export interface CartItem extends Product {

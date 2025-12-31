@@ -41,8 +41,8 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
 
     let animReq: number;
     let lastTime = 0;
-    // Set a lower FPS for that "slow running" cinematic feel
-    const fps = 8; 
+    // Lower FPS for a cinematic slow-running feel
+    const fps = 6; 
     const interval = 1000 / fps;
 
     const draw = (currentTime: number) => {
@@ -52,14 +52,13 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
       if (delta < interval) return;
       lastTime = currentTime - (delta % interval);
 
-      // Trailing effect - completely dark with faint trails
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; 
+      // Trailing effect - dark background for cleaner contrast
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; 
       ctx.fillRect(0, 0, width, height);
 
       ctx.font = `${fontSize}px "JetBrains Mono", monospace`;
       
-      // Slightly different green colors for variety
-      const colors = isProcessing ? ['#ffffff', '#0aff0a'] : ['#0aff0a', '#004400', '#0a880a'];
+      const colors = isProcessing ? ['#ffffff', '#0aff0a'] : ['#0aff0a33', '#0aff0a11', '#0aff0a22'];
 
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
@@ -69,13 +68,11 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
         ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
         ctx.fillText(char, x, y);
 
-        // Slow movement logic
-        if (y > height && Math.random() > 0.99) {
+        if (y > height && Math.random() > 0.995) {
           drops[i] = 0;
         }
         
-        // Very slow vertical increment
-        drops[i] += isProcessing ? 1.0 : 0.6;
+        drops[i] += isProcessing ? 0.8 : 0.4;
       }
     };
 
@@ -96,8 +93,8 @@ const MatrixBackground: React.FC<MatrixBackgroundProps> = ({ isProcessing = fals
       className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none transition-opacity duration-1000"
       style={{ 
         background: '#000000',
-        filter: 'blur(3px)', // Apply the requested blur effect
-        opacity: 0.35 // Slightly increased visibility since it is blurred
+        filter: 'blur(4px)', // Applied blur for the atmospheric look
+        opacity: 0.25 
       }}
     />
   );

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Product, SoftwareStage } from '../types.ts';
 import { validateLicenseKey, markKeyAsUsed, isKeyAlreadyUsed } from '../services/licenseService.ts';

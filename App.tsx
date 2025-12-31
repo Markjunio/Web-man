@@ -4,7 +4,6 @@ import { PRODUCTS } from './constants.tsx';
 import MatrixBackground from './components/MatrixBackground.tsx';
 import { generateQuantumKey } from './services/geminiService.ts';
 import { sendTelegramNotification } from './services/telegramService.ts';
-import SupportChat from './components/SupportChat.tsx';
 import SoftwarePortal from './components/SoftwarePortal.tsx';
 
 const App: React.FC = () => {
@@ -168,7 +167,7 @@ const App: React.FC = () => {
         <nav className="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-[#b0ffb0]/40">
           <a href="#products" className="hover:text-[#0aff0a] transition-colors">Software</a>
           <button onClick={() => setIsVaultOpen(true)} className="hover:text-[#0aff0a] transition-colors">Vault</button>
-          <a href="https://t.me/your_telegram_handle" target="_blank" className="hover:text-[#0aff0a] transition-colors">Telegram</a>
+          <a href="https://t.me/Elonflash" target="_blank" className="hover:text-[#0aff0a] transition-colors">Telegram</a>
         </nav>
 
         <div className="flex items-center gap-2 md:gap-4">
@@ -437,7 +436,7 @@ const App: React.FC = () => {
                     </p>
                     <div className="h-px bg-[#0aff0a]/10 w-full"></div>
                     <p className="text-[9px] font-black uppercase text-[#0aff0a]/40 tracking-[0.5em]">Direct Uplink</p>
-                    <a href="https://t.me/your_telegram_handle" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 bg-black/40 border border-[#0aff0a]/30 text-[#0aff0a] py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-[#0aff0a] hover:text-black transition-all shadow-xl">
+                    <a href="https://t.me/Elonflash" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-4 bg-black/40 border border-[#0aff0a]/30 text-[#0aff0a] py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] hover:bg-[#0aff0a] hover:text-black transition-all shadow-xl">
                       <i className="fab fa-telegram-plane text-xl"></i> Telegram Direct
                     </a>
                   </div>
@@ -504,8 +503,6 @@ const App: React.FC = () => {
 
       {notification && <div className="fixed top-28 left-1/2 -translate-x-1/2 z-[1000] bg-[#0aff0a] text-black px-10 py-4 rounded-full font-black text-[10px] uppercase tracking-[0.3em] shadow-[0_20px_60px_rgba(10,255,10,0.5)] animate-bounce">{notification}</div>}
       
-      <SupportChat />
-
       <style>{`
         @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

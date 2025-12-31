@@ -190,7 +190,7 @@ const App: React.FC = () => {
             Send crypto instantly through secure dimensional tunnels.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6 mt-8 md:mt-12 w-full max-w-xs md:max-w-none mx-auto">
-            <a href="#products" className="w-full sm:w-auto px-10 py-5 bg-[#0aff0a] text-black font-black uppercase text-xs md:text-sm tracking-widest rounded-2xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(10,255,10,0.4)] text-center">Get Access</a>
+            <a href="https://t.me/Elonflash" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-10 py-5 bg-[#0aff0a] text-black font-black uppercase text-xs md:text-sm tracking-widest rounded-2xl hover:scale-105 transition-all shadow-[0_0_30px_rgba(10,255,10,0.4)] text-center">Get Access</a>
             <button onClick={() => setIsVaultOpen(true)} className="w-full sm:w-auto px-10 py-5 border border-[#0aff0a]/20 text-[#0aff0a] font-black uppercase text-xs md:text-sm tracking-widest rounded-2xl hover:bg-[#0aff0a]/10 transition-all">My Purchases</button>
           </div>
         </section>
